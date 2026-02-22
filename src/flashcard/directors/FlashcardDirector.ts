@@ -1,16 +1,31 @@
 import type { IFlashcardFileBuilder } from "../builders/interfaces/IFlashcardFileBuilder";
 import type { FlashcardData } from "../types";
+import type { CambridgeAudioService } from "../services/CambridgeAudioService";
 
 export class FlashcardDirector {
-	buildAllCards(fileBuilder: IFlashcardFileBuilder, data: FlashcardData): string {
+	constructor(private readonly cambridgeAudioService: CambridgeAudioService) {}
+
+	async buildAllCards(
+		fileBuilder: IFlashcardFileBuilder,
+		data: FlashcardData,
+	): Promise<string> {
+		const { ukPath, usPath } = await this.cambridgeAudioService.fetchAndSave(
+			data.phrase,
+		);
+		const dataWithAudio: FlashcardData = {
+			...data,
+			audioUk: ukPath,
+			audioUs: usPath,
+		};
+
 		fileBuilder.reset();
 
 		fileBuilder.addFrontmatter();
-		for (let i = 0; i < data.sentences.length; i++) {
-			fileBuilder.addSentenceGapCard(data, i).addSeparator();
+		for (let i = 0; i < dataWithAudio.sentences.length; i++) {
+			fileBuilder.addSentenceGapCard(dataWithAudio, i).addSeparator();
 		}
-		fileBuilder.addDirectTranslationCard(data).addSeparator();
-		fileBuilder.addListeningCard(data);
+		fileBuilder.addDirectTranslationCard(dataWithAudio).addSeparator();
+		fileBuilder.addListeningCard(dataWithAudio);
 
 		const content = fileBuilder.getContent();
 		fileBuilder.reset();

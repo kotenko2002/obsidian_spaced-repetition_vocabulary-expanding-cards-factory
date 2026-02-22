@@ -5,6 +5,7 @@ import {
 	FlashcardBuilder,
 	FlashcardDirector,
 	FlashcardFileBuilder,
+	CambridgeAudioService,
 	type FlashcardData,
 } from "./flashcard";
 
@@ -22,14 +23,15 @@ export default class MyPlugin extends Plugin {
 			phrase: "attract",
 			explanation: "привертати увагу, притягувати",
 			sentences: ["The show attracted a large audience.", "Bright colors attract attention."],
-			audioUs: "attract-us.mp3",
-			audioUk: "attract-uk.mp3",
+			audioUs: "attract",
+			audioUk: "attract",
 		};
 		const card = new FlashcardFile();
 		const flashcardBuilder = new FlashcardBuilder(card);
 		const fileBuilder = new FlashcardFileBuilder(flashcardBuilder);
-		const director = new FlashcardDirector();
-		const result = director.buildAllCards(fileBuilder, testData);
+		const cambridgeAudioService = new CambridgeAudioService(this.app.vault);
+		const director = new FlashcardDirector(cambridgeAudioService);
+		const result = await director.buildAllCards(fileBuilder, testData);
 		console.clear();
 		console.log("[FlashcardDirector] buildAllCards result:", result);
 

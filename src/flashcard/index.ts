@@ -5,3 +5,7 @@ export { FlashcardFileBuilder } from "./builders/FlashcardFileBuilder";
 export type { IFlashcardFileBuilder } from "./builders/interfaces/IFlashcardFileBuilder";
 export type { IFlashcardBuilder } from "./builders/interfaces/IFlashcardBuilder";
 export type { FlashcardData } from "./types";
+export {
+	CambridgeAudioService,
+	type CambridgeAudioResult,
+} from "./services/CambridgeAudioService";
