@@ -1,19 +1,41 @@
 import {App, Editor, MarkdownView, Modal, Notice, Plugin} from 'obsidian';
 import {DEFAULT_SETTINGS, MyPluginSettings, SampleSettingTab} from "./settings";
+import {
+	FlashcardFile,
+	FlashcardBuilder,
+	FlashcardDirector,
+	FlashcardFileBuilder,
+	type FlashcardData,
+} from "./flashcard";
 
-// Remember to rename these classes and interfaces!
-
+// TODO: rename MyPlugin
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
 
 	async onload() {
+		console.log('attachmentFolderPath', (this.app.vault as any).config.attachmentFolderPath);
+
 		await this.loadSettings();
 
+		// Перевірка FlashcardDirector
+		const testData: FlashcardData = {
+			phrase: "attract",
+			explanation: "привертати увагу, притягувати",
+			sentences: ["The show attracted a large audience.", "Bright colors attract attention."],
+			audioUs: "attract-us.mp3",
+			audioUk: "attract-uk.mp3",
+		};
+		const card = new FlashcardFile();
+		const flashcardBuilder = new FlashcardBuilder(card);
+		const fileBuilder = new FlashcardFileBuilder(flashcardBuilder);
+		const director = new FlashcardDirector();
+		const result = director.buildAllCards(fileBuilder, testData);
+		console.clear();
+		console.log("[FlashcardDirector] buildAllCards result:", result);
+
+		/*
 		// This creates an icon in the left ribbon.
-		this.addRibbonIcon('dice', 'Sample', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
+		this.addRibbonIcon('dice', 'Sample', (evt: MouseEvent) => { new Notice('This is a notice!');});
 
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
 		const statusBarItemEl = this.addStatusBarItem();
@@ -61,13 +83,11 @@ export default class MyPlugin extends Plugin {
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			new Notice("Click");
-		});
+		// this.registerDomEvent(document, 'click', (evt: MouseEvent) => { new Notice("Click"); });
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-
+		 */
 	}
 
 	onunload() {
