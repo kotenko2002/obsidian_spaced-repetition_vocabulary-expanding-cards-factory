@@ -1,7 +1,6 @@
 import {App, Editor, MarkdownView, Modal, Notice, Plugin} from 'obsidian';
 import {DEFAULT_SETTINGS, MyPluginSettings, SampleSettingTab} from "./settings";
 import {
-	FlashcardFile,
 	FlashcardBuilder,
 	FlashcardDirector,
 	FlashcardFileBuilder,
@@ -26,14 +25,13 @@ export default class MyPlugin extends Plugin {
 			audioUs: "attract",
 			audioUk: "attract",
 		};
-		const card = new FlashcardFile();
-		const flashcardBuilder = new FlashcardBuilder(card);
+		const flashcardBuilder = new FlashcardBuilder();
 		const fileBuilder = new FlashcardFileBuilder(flashcardBuilder);
 		const cambridgeAudioService = new CambridgeAudioService(this.app.vault);
 		const director = new FlashcardDirector(cambridgeAudioService);
 		const result = await director.buildAllCards(fileBuilder, testData);
 		console.clear();
-		console.log("[FlashcardDirector] buildAllCards result:", result);
+		console.log(result);
 
 		/*
 		// This creates an icon in the left ribbon.

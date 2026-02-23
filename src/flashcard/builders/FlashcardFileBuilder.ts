@@ -5,7 +5,9 @@ import type { FlashcardData } from "../types";
 const SENTENCE_GAP_TITLE = "Вправа з пропущеним словом";
 const DIRECT_TRANSLATION_TITLE = "Вправа з прямого перекладу";
 const LISTENING_TITLE = "Вправа з сприйняття на слух";
-const DEFAULT_FRONTMATTER_TAGS = ["flashcards/english/vocabulary"];
+const FRONTMATTER_TAGS = ["flashcards/english/vocabulary"];
+const LINE_BREAK = "\n";
+const SEPARATOR = `${LINE_BREAK}---${LINE_BREAK}${LINE_BREAK}`;
 
 function formatCreatedAt(date: Date): string {
 	return new Intl.DateTimeFormat("sv-SE", {
@@ -19,70 +21,88 @@ function formatCreatedAt(date: Date): string {
 }
 
 export class FlashcardFileBuilder implements IFlashcardFileBuilder {
-	constructor(private readonly flashcardBuilder: IFlashcardBuilder) {}
+	private cards: string[] = [];
+	private readonly flashcardBuilder: IFlashcardBuilder;
 
-	addFrontmatter(): IFlashcardFileBuilder {
-		const createdAt = formatCreatedAt(new Date());
-		const tagsBlock = DEFAULT_FRONTMATTER_TAGS.map((t) => `  - ${t}`).join("\n");
-
-		const frontmatter = `---
-created at: "${createdAt}"
-tags:
-${tagsBlock}
----
-`;
-		this.flashcardBuilder.addRaw(frontmatter);
-		return this;
+	constructor(flashcardBuilder: IFlashcardBuilder) {
+		this.flashcardBuilder = flashcardBuilder;
 	}
 
-	addSentenceGapCard(data: FlashcardData, sentenceIndex: number): IFlashcardFileBuilder {
+	public addSentenceGapCard(data: FlashcardData, sentenceIndex: number): IFlashcardFileBuilder {
 		const sentence = data.sentences[sentenceIndex];
 		if (sentence === undefined) {
 			throw new RangeError(`Invalid sentenceIndex: ${sentenceIndex}`);
 		}
 
-		this.flashcardBuilder
+		const cardContent = this.flashcardBuilder.reset()
 			.addTitle(SENTENCE_GAP_TITLE)
 			.addSentence(sentence)
 			.addQuestionLine()
 			.addPhraseExplanation(data.phrase, data.explanation)
 			.addAudioUs(data.audioUs)
-			.addAudioUk(data.audioUk);
+			.addAudioUk(data.audioUk)
+			.build();
+
+		this.cards.push(cardContent);
+
 		return this;
 	}
 
-	addDirectTranslationCard(data: FlashcardData): IFlashcardFileBuilder {
-		this.flashcardBuilder
+	public addSentenceGapCards(data: FlashcardData): IFlashcardFileBuilder {
+		for (let i = 0; i < data.sentences.length; i++) {
+			this.addSentenceGapCard(data, i);
+		}
+
+		return this;
+	}
+
+	public addDirectTranslationCard(data: FlashcardData): IFlashcardFileBuilder {
+		const cardContent = this.flashcardBuilder.reset()
 			.addTitle(DIRECT_TRANSLATION_TITLE)
 			.addSentence(data.phrase)
 			.addQuestionLine()
 			.addPhraseExplanation(data.phrase, data.explanation)
 			.addAudioUs(data.audioUs)
-			.addAudioUk(data.audioUk);
+			.addAudioUk(data.audioUk)
+			.build();
+
+		this.cards.push(cardContent);
+
 		return this;
 	}
 
-	addListeningCard(data: FlashcardData): IFlashcardFileBuilder {
-		this.flashcardBuilder
+	public addListeningCard(data: FlashcardData): IFlashcardFileBuilder {
+		const cardContent = this.flashcardBuilder.reset()
 			.addTitle(LISTENING_TITLE)
 			.addAudioUs(data.audioUs)
 			.addAudioUk(data.audioUk)
 			.addQuestionLine()
-			.addPhraseExplanation(data.phrase, data.explanation);
+			.addPhraseExplanation(data.phrase, data.explanation)
+			.build();
+
+		this.cards.push(cardContent);
+
 		return this;
 	}
 
-	addSeparator(): IFlashcardFileBuilder {
-		this.flashcardBuilder.addSeparator();
-		return this;
-	}
-
-	getContent(): string {
-		return this.flashcardBuilder.getCard().content;
-	}
-
-	reset(): IFlashcardFileBuilder {
+	public reset(): IFlashcardFileBuilder {
 		this.flashcardBuilder.reset();
 		return this;
+	}
+
+	public build(): string {
+		return this.addFrontmatter() + this.cards.join(SEPARATOR);
+	}
+
+	private addFrontmatter(): string {
+		const createdAt = formatCreatedAt(new Date());
+		const tagsBlock = FRONTMATTER_TAGS.map((t) => `  - ${t}`).join("\n");
+
+		return `---
+created at: "${createdAt}"
+tags:
+${tagsBlock}
+---
+`;
 	}
 }

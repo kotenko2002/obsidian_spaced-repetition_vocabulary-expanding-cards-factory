@@ -18,18 +18,11 @@ export class FlashcardDirector {
 			audioUs: usPath,
 		};
 
-		fileBuilder.reset();
-
-		fileBuilder.addFrontmatter();
-		for (let i = 0; i < dataWithAudio.sentences.length; i++) {
-			fileBuilder.addSentenceGapCard(dataWithAudio, i).addSeparator();
-		}
-		fileBuilder.addDirectTranslationCard(dataWithAudio).addSeparator();
-		fileBuilder.addListeningCard(dataWithAudio);
-
-		const content = fileBuilder.getContent();
-		fileBuilder.reset();
-
-		return content;
+		return fileBuilder
+			.reset()
+			.addSentenceGapCards(dataWithAudio)
+			.addDirectTranslationCard(dataWithAudio)
+			.addListeningCard(dataWithAudio)
+			.build();
 	}
 }
