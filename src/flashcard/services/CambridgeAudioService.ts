@@ -19,6 +19,7 @@ function wordOrPhraseToFileBase(wordOrPhrase: string): string {
 }
 
 // TODO: add interface and create fallback class
+// TODO: extract create binary and folder logic according to SRP
 export class CambridgeAudioService {
 	constructor(private readonly vault: Vault) {}
 
@@ -45,8 +46,7 @@ export class CambridgeAudioService {
 		const ukRelativePath = matches[0];
 		const usRelativePath = matches[1];
 
-		// TODO: fix
-		// await this.ensureFolderExists(storageFolderPath);
+		await this.createFolderIfNotExists(storageFolderPath);
 
 		const ukFilePath = `${storageFolderPath}/${fileBase}_uk.ogg`;
 		const usFilePath = `${storageFolderPath}/${fileBase}_us.ogg`;
@@ -61,27 +61,38 @@ export class CambridgeAudioService {
 		}
 
 		await Promise.all([
-			this.vault.createBinary(ukFilePath, ukBuffer),
-			this.vault.createBinary(usFilePath, usBuffer),
+			this.createBinaryIfNotExists(ukFilePath, ukBuffer),
+			this.createBinaryIfNotExists(usFilePath, usBuffer),
 		]);
 
 		return { ukPath: ukFilePath, usPath: usFilePath };
 	}
 
-	private async ensureFolderExists(folderPath: string): Promise<void> {
-		const normalized = folderPath.replace(/\/+$/, "");
-		if (!normalized) return;
-		const existing = this.vault.getAbstractFileByPath(normalized);
-		if (existing) return;
+	private async createFolderIfNotExists(folderPath: string): Promise<void> {
+		const folderAlreadyExists = await this.vault.adapter.exists(folderPath);
+		if (folderAlreadyExists) {
+			return;
+		}
+
 		try {
-			await this.vault.createFolder(normalized);
+			await this.vault.createFolder(folderPath);
 		} catch (error) {
-			if (
-				!(error instanceof Error) ||
-				!error.message?.toLowerCase().includes("already exists")
-			) {
-				throw error;
-			}
+			console.error(`[Plugin Name] Failed to create folder at: ${folderPath}`, error);
+			throw new Error(`Could not create folder: ${folderPath}`);
+		}
+	}
+
+	private async createBinaryIfNotExists(binaryPath: string, data: ArrayBuffer): Promise<void> {
+		const binaryAlreadyExists = await this.vault.adapter.exists(binaryPath);
+		if (binaryAlreadyExists) {
+			return;
+		}
+
+		try {
+			await this.vault.createBinary(binaryPath, data);
+		} catch (error) {
+			console.error(`[Plugin Name] Failed to create binary at: ${binaryPath}`, error);
+			throw new Error(`Could not create folder: ${binaryPath}`);
 		}
 	}
 
