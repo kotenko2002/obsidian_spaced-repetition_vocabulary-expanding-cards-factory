@@ -20,7 +20,7 @@ export class FlashcardDirector {
 	async buildAllCards(
 		data: FlashcardData,
 	): Promise<string> {
-		const storageFolderPath = (this.vault as any).config?.attachmentFolderPath ?? "_Cache";
+		const storageFolderPath = "_Cache"; // TODO: take from settings
 
 		const { ukData, usData } = await this.cambridgeAudioService.fetch(data.phrase);
 

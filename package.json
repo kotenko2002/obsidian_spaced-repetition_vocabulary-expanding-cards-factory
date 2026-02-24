@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "create-flashcard-files-plugin",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "This is a simple plugin for Obsidian (https://obsidian.md) for creating flashcards for spaced repetition plugin ",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {

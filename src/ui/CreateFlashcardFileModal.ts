@@ -51,11 +51,11 @@ export class CreateFlashcardFileModal extends Modal {
 
 		this.inputEl = inputWrapper.createEl("textarea", {
 			cls: "create-flashcard-file-modal__textarea",
-		}) as HTMLTextAreaElement;
+		});
 
 		this.inputEl.rows = 8;
 		this.inputEl.placeholder =
-			"Paste JSON array of InputFlashcardData objects here";
+			"Paste JSON array of input flashcard data objects here";
 	}
 
 	private renderFooter(container: HTMLElement) {
@@ -66,12 +66,14 @@ export class CreateFlashcardFileModal extends Modal {
 		this.parseButtonEl = buttonWrapper.createEl("button", {
 			text: "Parse JSON",
 			cls: "mod-cta create-flashcard-file-modal__parse-button",
-		}) as HTMLButtonElement;
+		});
 
 		this.parseButtonEl.disabled = true;
 
 		this.inputEl.addEventListener("input", this.handleInputChange);
-		this.parseButtonEl.addEventListener("click", this.handleParseClick);
+		this.parseButtonEl.addEventListener("click", () => {
+			void this.handleParseClick();
+		});
 	}
 
 	private handleInputChange = () => {
@@ -83,10 +85,10 @@ export class CreateFlashcardFileModal extends Modal {
 		}
 
 		try {
-			const parsed = JSON.parse(rawJson);
+			const parsed: unknown = JSON.parse(rawJson);
 			const result = inputFlashcardDataArraySchema.safeParse(parsed);
 			this.parseButtonEl.disabled = !result.success;
-		} catch (_error) {
+		} catch {
 			this.parseButtonEl.disabled = true;
 		}
 	};
@@ -100,7 +102,7 @@ export class CreateFlashcardFileModal extends Modal {
 		}
 
 		try {
-			const parsed = JSON.parse(rawJson);
+			const parsed: unknown = JSON.parse(rawJson);
 			const result = inputFlashcardDataArraySchema.safeParse(parsed);
 
 			if (!result.success) {
@@ -120,11 +122,11 @@ export class CreateFlashcardFileModal extends Modal {
 			const builtCards: string[] = [];
 			for (const flashcard of flashcards) {
 				const built = await director.buildAllCards(flashcard);
-				console.log(built);
+				console.debug(built);
 				builtCards.push(built);
 			}
 
-			console.log("Built flashcard markdown:", builtCards);
+			console.debug("Built flashcard markdown:", builtCards);
 		} catch (error) {
 			console.error("Failed to parse flashcard JSON:", error);
 		}
