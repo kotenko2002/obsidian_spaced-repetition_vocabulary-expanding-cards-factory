@@ -1,8 +1,7 @@
 import { requestUrl, type Vault } from "obsidian";
 
 const CAMBRIDGE_BASE_URL = "https://dictionary.cambridge.org";
-const USER_AGENT =
-	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
+const USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 const OGG_URL_PATTERN = /\/media\/english\/[^"']+\.ogg/g;
 
 export interface CambridgeAudioResult {
@@ -16,6 +15,20 @@ function wordOrPhraseToUrlSegment(wordOrPhrase: string): string {
 
 function wordOrPhraseToFileBase(wordOrPhrase: string): string {
 	return wordOrPhrase.trim().toLowerCase().replace(/\s+/g, "_");
+}
+
+function extractOggUrlsFromPosHeaders(html: string): string[] {
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(html, "text/html");
+	const entryElement = doc.querySelector(".entry-body__el:has(.pos-header)");
+
+	if (!entryElement) {
+		return [];
+	}
+
+	const posHeaderElement = entryElement.querySelector("div.pos-header")!;
+	const matches = posHeaderElement.innerHTML.match(OGG_URL_PATTERN);
+	return matches ?? [];
 }
 
 // TODO: add interface and create fallback class
@@ -36,7 +49,7 @@ export class CambridgeAudioService {
 			throw: true,
 		});
 
-		const matches = response.text.match(OGG_URL_PATTERN);
+		const matches = extractOggUrlsFromPosHeaders(response.text);
 		if (!matches || matches.length < 2) {
 			throw new Error(
 				`Could not find both UK and US audio for "${wordOrPhrase}". Found ${matches?.length ?? 0} match(es).`,

@@ -1,8 +1,32 @@
-/*
+.create-flashcard-file-modal {
+	padding-bottom: 16px;
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.create-flashcard-file-modal__title {
+	text-align: center;
+	margin: 0 0 12px;
+}
 
-If your plugin does not need CSS, delete this file.
+.create-flashcard-file-modal__divider {
+	margin: 0 0 12px;
+}
 
-*/
+.create-flashcard-file-modal__input-wrapper {
+	margin-top: 4px;
+}
+
+.create-flashcard-file-modal__textarea {
+	width: 100%;
+	resize: vertical;
+	min-height: 8rem;
+}
+
+.create-flashcard-file-modal__actions {
+	margin-top: 16px;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.create-flashcard-file-modal__parse-button {
+	min-width: 96px;
+}

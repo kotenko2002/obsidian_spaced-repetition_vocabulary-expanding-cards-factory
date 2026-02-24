@@ -1,7 +1,3 @@
-export interface FlashcardData {
-	phrase: string;
-	explanation: string;
-	sentences: string[];
-	audioUs: string;
-	audioUk: string;
-}
+import type { InputFlashcardData } from "./models/InputFlashcardData";
+
+export type FlashcardData = InputFlashcardData;
