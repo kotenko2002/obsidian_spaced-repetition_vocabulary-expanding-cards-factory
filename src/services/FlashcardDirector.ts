@@ -1,6 +1,6 @@
-import type { IFlashcardFileBuilder } from "../builders/interfaces/IFlashcardFileBuilder";
+import type { IFlashcardFileBuilder } from "./interfaces/IFlashcardFileBuilder";
 import type { FlashcardData } from "../types";
-import type { CambridgeAudioService } from "../services/CambridgeAudioService";
+import type { CambridgeAudioService } from "./CambridgeAudioService";
 
 export class FlashcardDirector {
 	constructor(private readonly cambridgeAudioService: CambridgeAudioService) {}

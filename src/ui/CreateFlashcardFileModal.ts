@@ -6,7 +6,7 @@ import {
 	FlashcardFileBuilder,
 	inputFlashcardDataArraySchema,
 	type InputFlashcardData,
-} from "../flashcard";
+} from "../index";
 
 export class CreateFlashcardFileModal extends Modal {
 	private inputEl!: HTMLTextAreaElement;
