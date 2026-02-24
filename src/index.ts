@@ -9,5 +9,5 @@ export {
 } from "./models/InputFlashcardData";
 export {
 	CambridgeAudioService,
-	type CambridgeAudioResult,
+	type CambridgeAudioDownloadResult,
 } from "./services/CambridgeAudioService";

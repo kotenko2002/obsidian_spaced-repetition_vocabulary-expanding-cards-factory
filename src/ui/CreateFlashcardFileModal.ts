@@ -7,6 +7,7 @@ import {
 	inputFlashcardDataArraySchema,
 	type InputFlashcardData,
 } from "../index";
+import { VaultStorageService } from "../services/VaultStorageService";
 
 export class CreateFlashcardFileModal extends Modal {
 	private inputEl!: HTMLTextAreaElement;
@@ -109,14 +110,16 @@ export class CreateFlashcardFileModal extends Modal {
 
 			const flashcards: InputFlashcardData[] = result.data;
 
-			const flashcardBuilder = new FlashcardBuilder();
-			const fileBuilder = new FlashcardFileBuilder(flashcardBuilder);
-			const cambridgeAudioService = new CambridgeAudioService(this.app.vault);
-			const director = new FlashcardDirector(cambridgeAudioService);
+			const director = new FlashcardDirector(
+				this.app.vault,
+				new VaultStorageService(this.app.vault),
+				new CambridgeAudioService(),
+				new FlashcardFileBuilder(new FlashcardBuilder()),
+			);
 
 			const builtCards: string[] = [];
 			for (const flashcard of flashcards) {
-				const built = await director.buildAllCards(fileBuilder, flashcard);
+				const built = await director.buildAllCards(flashcard);
 				console.log(built);
 				builtCards.push(built);
 			}
