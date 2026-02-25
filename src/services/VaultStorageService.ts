@@ -35,4 +35,20 @@ export class VaultStorageService {
 			throw new Error(`Could not create file: ${binaryPath}`);
 		}
 	}
+
+	async createFileIfNotExists(filePath: string, contents: string): Promise<void> {
+		const fileAlreadyExists = await this.vault.adapter.exists(filePath);
+		if (fileAlreadyExists) {
+			return;
+		}
+
+		try {
+			await this.vault.create(filePath, contents);
+		} catch (error) {
+			const logMessage = `[VaultStorage] Failed to create file at: ${filePath}`;
+			new ErrorNotice(logMessage);
+			console.error(logMessage, error);
+			throw new Error(`Could not create file: ${filePath}`);
+		}
+	}
 }

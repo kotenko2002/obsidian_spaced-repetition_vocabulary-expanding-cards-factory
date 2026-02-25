@@ -23,6 +23,7 @@ export class FlashcardDirector {
 		data: FlashcardData,
 	): Promise<string> {
 		const storageFolderPath = this.settings.audioFolderPath || DEFAULT_SETTINGS.audioFolderPath;
+		const flashcardFolderPath = this.settings.flashcardFileFolderPath || DEFAULT_SETTINGS.flashcardFileFolderPath;
 
 		const { ukData, usData } = await this.cambridgeAudioService.fetch(data.phrase);
 
@@ -43,11 +44,19 @@ export class FlashcardDirector {
 			audioUs: usFilePath,
 		};
 
-		return this.fileBuilder
+		const flashcardMarkdown = this.fileBuilder
 			.reset()
 			.addSentenceGapCards(dataWithAudio)
 			.addDirectTranslationCard(dataWithAudio)
 			.addListeningCard(dataWithAudio)
 			.build();
+
+		const flashcardFileName = `(VOC) ${fileBase}.md`;
+		const flashcardFilePath = `${flashcardFolderPath}/${flashcardFileName}`;
+
+		await this.storage.createFolderIfNotExists(flashcardFolderPath);
+		await this.storage.createFileIfNotExists(flashcardFilePath, flashcardMarkdown);
+
+		return flashcardMarkdown;
 	}
 }
