@@ -7,6 +7,7 @@ import {
 	inputFlashcardDataArraySchema,
 	type InputFlashcardData,
 } from "../index";
+import { ErrorNotice } from "./ErrorNotice";
 import { VaultStorageService } from "../services/VaultStorageService";
 import type { CreateFlashcardFilesPluginSettings } from "../settings";
 
@@ -130,7 +131,9 @@ export class CreateFlashcardFileModal extends Modal {
 
 			console.debug("Built flashcard markdown:", builtCards);
 		} catch (error) {
-			console.error("Failed to parse flashcard JSON:", error);
+			const message = "Failed to parse flashcard JSON. See console for details.";
+			new ErrorNotice(message);
+			console.error(message, error);
 		}
 	};
 }

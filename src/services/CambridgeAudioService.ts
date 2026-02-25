@@ -1,5 +1,6 @@
 import { requestUrl } from "obsidian";
 import { wordOrPhraseToUrlSegment } from "../helpers/wordPhraseHelpers";
+import {ErrorNotice} from "../ui/ErrorNotice";
 
 const CAMBRIDGE_BASE_URL = "https://dictionary.cambridge.org";
 const USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
@@ -38,9 +39,11 @@ export class CambridgeAudioService {
 
 		const matches = extractOggUrlsFromPosHeaders(response.text);
 		if (!matches || matches.length < 2) {
-			throw new Error(
-				`Could not find both UK and US audio for "${wordOrPhrase}". Found ${matches?.length ?? 0} match(es).`,
-			);
+			const message =
+				`Could not find both UK and US audio for "${wordOrPhrase}". Found ${matches?.length ?? 0} match(es).`;
+
+			new ErrorNotice(message);
+			throw new Error(message);
 		}
 
 		const ukRelativePath = matches[0];
@@ -52,7 +55,9 @@ export class CambridgeAudioService {
 		]);
 
 		if (ukBuffer.byteLength === 0 || usBuffer.byteLength === 0) {
-			throw new Error("One or both audio files are empty.");
+			const message = "One or both audio files are empty.";
+			new ErrorNotice(message);
+			throw new Error(message);
 		}
 
 		return { ukData: ukBuffer, usData: usBuffer };

@@ -1,4 +1,5 @@
 import type { Vault } from "obsidian";
+import { ErrorNotice } from "../ui/ErrorNotice";
 
 export class VaultStorageService {
 	constructor(private readonly vault: Vault) {}
@@ -12,7 +13,9 @@ export class VaultStorageService {
 		try {
 			await this.vault.createFolder(folderPath);
 		} catch (error) {
-			console.error(`[VaultStorage] Failed to create folder at: ${folderPath}`, error);
+			const logMessage = `[VaultStorage] Failed to create folder at: ${folderPath}`;
+			new ErrorNotice(logMessage);
+			console.error(logMessage, error);
 			throw new Error(`Could not create folder: ${folderPath}`);
 		}
 	}
@@ -26,7 +29,9 @@ export class VaultStorageService {
 		try {
 			await this.vault.createBinary(binaryPath, data);
 		} catch (error) {
-			console.error(`[VaultStorage] Failed to create binary at: ${binaryPath}`, error);
+			const logMessage = `[VaultStorage] Failed to create binary at: ${binaryPath}`;
+			new ErrorNotice(logMessage);
+			console.error(logMessage, error);
 			throw new Error(`Could not create file: ${binaryPath}`);
 		}
 	}
