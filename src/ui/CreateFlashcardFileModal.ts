@@ -8,12 +8,13 @@ import {
 	type InputFlashcardData,
 } from "../index";
 import { VaultStorageService } from "../services/VaultStorageService";
+import type { CreateFlashcardFilesPluginSettings } from "../settings";
 
 export class CreateFlashcardFileModal extends Modal {
 	private inputEl!: HTMLTextAreaElement;
 	private parseButtonEl!: HTMLButtonElement;
 
-	constructor(app: App) {
+	constructor(app: App, private readonly settings: CreateFlashcardFilesPluginSettings) {
 		super(app);
 	}
 
@@ -117,6 +118,7 @@ export class CreateFlashcardFileModal extends Modal {
 				new VaultStorageService(this.app.vault),
 				new CambridgeAudioService(),
 				new FlashcardFileBuilder(new FlashcardBuilder()),
+				this.settings,
 			);
 
 			const builtCards: string[] = [];

@@ -1,13 +1,14 @@
-import {App, PluginSettingTab, Setting} from "obsidian";
+import { App, PluginSettingTab, Setting } from "obsidian";
 import CreateFlashcardFilesPlugin from "./main";
+import { FolderSuggest } from "./ui/FolderSuggest";
 
 export interface CreateFlashcardFilesPluginSettings {
-	mySetting: string;
+	audioFolderPath: string;
 }
 
 export const DEFAULT_SETTINGS: CreateFlashcardFilesPluginSettings = {
-	mySetting: 'default'
-}
+	audioFolderPath: "_Cache",
+};
 
 export class CreateFlashcardFilesSettingTab extends PluginSettingTab {
 	plugin: CreateFlashcardFilesPlugin;
@@ -18,19 +19,25 @@ export class CreateFlashcardFilesSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		const {containerEl} = this;
+		const { containerEl } = this;
 
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Settings #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
+			.setName("Flashcard audio folder")
+			.setDesc(
+				"Folder where pronunciation audio (and other flashcard media) will be stored. Path is relative to the vault root.",
+			)
+			.addText((text) => {
+				text
+					.setPlaceholder("Specify the folder for audio cache")
+					.setValue(this.plugin.settings.audioFolderPath)
+					.onChange(async (value) => {
+						this.plugin.settings.audioFolderPath = value.trim();
+						await this.plugin.saveSettings();
+					});
+
+				new FolderSuggest(this.app, text.inputEl);
+			});
 	}
 }

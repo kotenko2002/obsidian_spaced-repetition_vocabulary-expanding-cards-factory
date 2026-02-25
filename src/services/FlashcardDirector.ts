@@ -4,6 +4,7 @@ import type { FlashcardData } from "../types";
 import type { CambridgeAudioService } from "./CambridgeAudioService";
 import { VaultStorageService } from "./VaultStorageService";
 import { wordOrPhraseToFileBase } from "../helpers/wordPhraseHelpers";
+import { CreateFlashcardFilesPluginSettings, DEFAULT_SETTINGS } from "../settings";
 
 export class FlashcardDirector {
 	private readonly vault: Vault;
@@ -13,6 +14,7 @@ export class FlashcardDirector {
 		private readonly storage: VaultStorageService,
 		private readonly cambridgeAudioService: CambridgeAudioService,
 		private readonly fileBuilder: IFlashcardFileBuilder,
+		private readonly settings: CreateFlashcardFilesPluginSettings,
 	) {
 		this.vault = vault;
 	}
@@ -20,7 +22,7 @@ export class FlashcardDirector {
 	async buildAllCards(
 		data: FlashcardData,
 	): Promise<string> {
-		const storageFolderPath = "_Cache"; // TODO: take from settings
+		const storageFolderPath = this.settings.audioFolderPath || DEFAULT_SETTINGS.audioFolderPath;
 
 		const { ukData, usData } = await this.cambridgeAudioService.fetch(data.phrase);
 

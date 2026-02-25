@@ -10,7 +10,7 @@ export default class CreateFlashcardFilesPlugin extends Plugin {
 		this.addSettingTab(new CreateFlashcardFilesSettingTab(this.app, this));
 
 		this.addRibbonIcon('sheets-in-box', 'Sheets in box', (_: MouseEvent) => {
-			new CreateFlashcardFileModal(this.app).open();
+			new CreateFlashcardFileModal(this.app, this.settings).open();
 		});
 	}
 
