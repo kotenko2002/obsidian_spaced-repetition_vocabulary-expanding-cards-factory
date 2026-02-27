@@ -4,8 +4,7 @@ export const inputFlashcardDataSchema = z.object({
 	phrase: z.string(),
 	explanation: z.string(),
 	sentences: z.array(z.string()),
-	audioUs: z.string(),
-	audioUk: z.string(),
+	lookupPhrase: z.string().optional(),
 });
 
 export type InputFlashcardData = z.infer<typeof inputFlashcardDataSchema>;

@@ -1,4 +1,4 @@
-import type { FlashcardData } from "../../types";
+import type { FlashcardData } from "../../models/FlashcardData";
 
 export interface IFlashcardFileBuilder {
 	addSentenceGapCard(data: FlashcardData, sentenceIndex: number): IFlashcardFileBuilder;

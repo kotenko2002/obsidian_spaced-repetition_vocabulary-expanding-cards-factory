@@ -1,6 +1,6 @@
 import type { IFlashcardFileBuilder } from "./interfaces/IFlashcardFileBuilder";
 import type { IFlashcardBuilder } from "./interfaces/IFlashcardBuilder";
-import type { FlashcardData } from "../types";
+import type { FlashcardData } from "../models/FlashcardData";
 
 const SENTENCE_GAP_TITLE = "Вправа з пропущеним словом";
 const DIRECT_TRANSLATION_TITLE = "Вправа з прямого перекладу";
@@ -39,8 +39,8 @@ export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 			.addSentence(sentence)
 			.addQuestionLine()
 			.addPhraseExplanation(data.phrase, data.explanation)
-			.addAudioUs(data.audioUs)
-			.addAudioUk(data.audioUk)
+			.addAudioUs(data.audio.us)
+			.addAudioUk(data.audio.uk)
 			.build();
 
 		this.cards.push(cardContent);
@@ -62,8 +62,8 @@ export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 			.addSentence(data.phrase)
 			.addQuestionLine()
 			.addPhraseExplanation(data.phrase, data.explanation)
-			.addAudioUs(data.audioUs)
-			.addAudioUk(data.audioUk)
+			.addAudioUs(data.audio.us)
+			.addAudioUk(data.audio.uk)
 			.build();
 
 		this.cards.push(cardContent);
@@ -74,8 +74,8 @@ export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 	public addListeningCard(data: FlashcardData): IFlashcardFileBuilder {
 		const cardContent = this.flashcardBuilder.reset()
 			.addTitle(LISTENING_TITLE)
-			.addAudioUs(data.audioUs)
-			.addAudioUk(data.audioUk)
+			.addAudioUs(data.audio.us)
+			.addAudioUk(data.audio.uk)
 			.addQuestionLine()
 			.addPhraseExplanation(data.phrase, data.explanation)
 			.build();

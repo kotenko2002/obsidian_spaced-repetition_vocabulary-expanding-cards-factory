@@ -115,7 +115,6 @@ export class CreateFlashcardFileModal extends Modal {
 			const flashcards: InputFlashcardData[] = result.data;
 
 			const director = new FlashcardDirector(
-				this.app.vault,
 				new VaultStorageService(this.app.vault),
 				new CambridgeAudioService(),
 				new FlashcardFileBuilder(new FlashcardBuilder()),

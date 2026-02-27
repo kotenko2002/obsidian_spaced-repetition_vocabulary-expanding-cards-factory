@@ -1,5 +1,5 @@
 import { requestUrl } from "obsidian";
-import { wordOrPhraseToUrlSegment } from "../helpers/wordPhraseHelpers";
+import { termToUrlSegment } from "../helpers/termHelpers";
 import {ErrorNotice} from "../ui/ErrorNotice";
 
 const CAMBRIDGE_BASE_URL = "https://dictionary.cambridge.org";
@@ -27,8 +27,8 @@ function extractOggUrlsFromPosHeaders(html: string): string[] {
 
 // TODO: add interface and create fallback class
 export class CambridgeAudioService {
-	async fetch(wordOrPhrase: string): Promise<CambridgeAudioDownloadResult> {
-		const urlSegment = wordOrPhraseToUrlSegment(wordOrPhrase);
+	async fetch(term: string): Promise<CambridgeAudioDownloadResult> {
+		const urlSegment = termToUrlSegment(term);
 		const dictUrl = `${CAMBRIDGE_BASE_URL}/dictionary/english/${urlSegment}`;
 
 		const response = await requestUrl({
@@ -40,7 +40,7 @@ export class CambridgeAudioService {
 		const matches = extractOggUrlsFromPosHeaders(response.text);
 		if (!matches || matches.length < 2) {
 			const message =
-				`Could not find both UK and US audio for "${wordOrPhrase}". Found ${matches?.length ?? 0} match(es).`;
+				`Could not find both UK and US audio for "${term}". Found ${matches?.length ?? 0} match(es).`;
 
 			new ErrorNotice(message);
 			throw new Error(message);
