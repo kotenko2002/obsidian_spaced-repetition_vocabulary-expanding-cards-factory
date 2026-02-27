@@ -2,10 +2,10 @@ export interface FlashcardData {
 	phrase: string;
 	explanation: string;
 	sentences: string[];
-	audio: FlashcardAudio;
+	audioFilePaths: FlashcardAudioFilePaths;
 }
 
-export interface FlashcardAudio {
-	us: string;
-	uk: string;
+export interface FlashcardAudioFilePaths {
+	us: string[];
+	uk: string[];
 }

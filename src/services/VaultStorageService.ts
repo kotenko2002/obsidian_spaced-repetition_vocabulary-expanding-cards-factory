@@ -4,7 +4,7 @@ import { ErrorNotice } from "../ui/ErrorNotice";
 export class VaultStorageService {
 	constructor(private readonly vault: Vault) {}
 
-	async createFolderIfNotExists(folderPath: string): Promise<void> {
+	public async createFolderIfNotExists(folderPath: string): Promise<void> {
 		const folderAlreadyExists = await this.vault.adapter.exists(folderPath);
 		if (folderAlreadyExists) {
 			return;
@@ -20,7 +20,7 @@ export class VaultStorageService {
 		}
 	}
 
-	async createBinaryIfNotExists(binaryPath: string, data: ArrayBuffer): Promise<void> {
+	public async createBinaryIfNotExists(binaryPath: string, data: ArrayBuffer): Promise<void> {
 		const binaryAlreadyExists = await this.vault.adapter.exists(binaryPath);
 		if (binaryAlreadyExists) {
 			return;
@@ -36,7 +36,7 @@ export class VaultStorageService {
 		}
 	}
 
-	async createFileIfNotExists(filePath: string, contents: string): Promise<void> {
+	public async createFileIfNotExists(filePath: string, contents: string): Promise<void> {
 		const fileAlreadyExists = await this.vault.adapter.exists(filePath);
 		if (fileAlreadyExists) {
 			return;

@@ -39,8 +39,8 @@ export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 			.addSentence(sentence)
 			.addQuestionLine()
 			.addPhraseExplanation(data.phrase, data.explanation)
-			.addAudioUs(data.audio.us)
-			.addAudioUk(data.audio.uk)
+			.addAudioUs(data.audioFilePaths.us)
+			.addAudioUk(data.audioFilePaths.uk)
 			.build();
 
 		this.cards.push(cardContent);
@@ -62,8 +62,8 @@ export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 			.addSentence(data.phrase)
 			.addQuestionLine()
 			.addPhraseExplanation(data.phrase, data.explanation)
-			.addAudioUs(data.audio.us)
-			.addAudioUk(data.audio.uk)
+			.addAudioUs(data.audioFilePaths.us)
+			.addAudioUk(data.audioFilePaths.uk)
 			.build();
 
 		this.cards.push(cardContent);
@@ -74,8 +74,8 @@ export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 	public addListeningCard(data: FlashcardData): IFlashcardFileBuilder {
 		const cardContent = this.flashcardBuilder.reset()
 			.addTitle(LISTENING_TITLE)
-			.addAudioUs(data.audio.us)
-			.addAudioUk(data.audio.uk)
+			.addAudioUs(data.audioFilePaths.us)
+			.addAudioUk(data.audioFilePaths.uk)
 			.addQuestionLine()
 			.addPhraseExplanation(data.phrase, data.explanation)
 			.build();

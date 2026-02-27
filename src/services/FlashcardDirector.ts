@@ -4,7 +4,7 @@ import { VaultStorageService } from "./VaultStorageService";
 import { termToAudioFileBase, termToFlashcardFileBase } from "../helpers/termHelpers";
 import { CreateFlashcardFilesPluginSettings, DEFAULT_SETTINGS } from "../settings";
 import { InputFlashcardData } from "../models/InputFlashcardData";
-import type { FlashcardAudio, FlashcardData } from "../models/FlashcardData";
+import type { FlashcardAudioFilePaths, FlashcardData } from "../models/FlashcardData";
 
 export class FlashcardDirector {
 	constructor(
@@ -14,29 +14,47 @@ export class FlashcardDirector {
 		private readonly settings: CreateFlashcardFilesPluginSettings,
 	) { }
 
-	async buildAllCards(data: InputFlashcardData): Promise<string> {
+	public async buildAllCards(data: InputFlashcardData): Promise<string> {
 		const storageFolderPath = this.settings.audioFolderPath || DEFAULT_SETTINGS.audioFolderPath;
 		const flashcardFolderPath = this.settings.flashcardFileFolderPath || DEFAULT_SETTINGS.flashcardFileFolderPath;
 
-		const lookupPhrase = data.lookupPhrase?.trim() || data.phrase;
-		const { ukData, usData } = await this.cambridgeAudioService.fetch(lookupPhrase);
-
 		await this.storage.createFolderIfNotExists(storageFolderPath);
 
-		const audioFileBase = termToAudioFileBase(data.phrase);
-		const audio: FlashcardAudio = {
-			uk: `${storageFolderPath}/${audioFileBase}_uk.ogg`,
-			us: `${storageFolderPath}/${audioFileBase}_us.ogg`,
-		};
+		const lookupPhrases = (data.lookupPhrase && data.lookupPhrase.length > 0)
+			? data.lookupPhrase
+			: [data.phrase];
+		const audioUsPaths: string[] = [];
+		const audioUkPaths: string[] = [];
 
-		await Promise.all([
-			this.storage.createBinaryIfNotExists(audio.uk, ukData),
-			this.storage.createBinaryIfNotExists(audio.us, usData),
-		]);
+		for (const lookupPhrase of lookupPhrases) {
+			const trimmedLookupPhrase = lookupPhrase.trim();
+			if (!trimmedLookupPhrase) {
+				continue;
+			}
+
+			const { ukData, usData } = await this.cambridgeAudioService.fetch(trimmedLookupPhrase);
+
+			const audioFileBase = termToAudioFileBase(trimmedLookupPhrase);
+			const ukPath = `${storageFolderPath}/${audioFileBase}_uk.ogg`;
+			const usPath = `${storageFolderPath}/${audioFileBase}_us.ogg`;
+
+			audioUkPaths.push(ukPath);
+			audioUsPaths.push(usPath);
+
+			await Promise.all([
+				this.storage.createBinaryIfNotExists(ukPath, ukData),
+				this.storage.createBinaryIfNotExists(usPath, usData),
+			]);
+		}
+
+		const audioFilePaths: FlashcardAudioFilePaths = {
+			uk: audioUkPaths,
+			us: audioUsPaths,
+		};
 
 		const dataWithAudio: FlashcardData = {
 			...data,
-			audio,
+			audioFilePaths,
 		};
 
 		const flashcardMarkdown = this.fileBuilder

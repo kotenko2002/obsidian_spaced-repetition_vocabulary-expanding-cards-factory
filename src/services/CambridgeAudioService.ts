@@ -27,7 +27,7 @@ function extractOggUrlsFromPosHeaders(html: string): string[] {
 
 // TODO: add interface and create fallback class
 export class CambridgeAudioService {
-	async fetch(term: string): Promise<CambridgeAudioDownloadResult> {
+	public async fetch(term: string): Promise<CambridgeAudioDownloadResult> {
 		const urlSegment = termToUrlSegment(term);
 		const dictUrl = `${CAMBRIDGE_BASE_URL}/dictionary/english/${urlSegment}`;
 
