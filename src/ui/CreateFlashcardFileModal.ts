@@ -7,7 +7,7 @@ import {
 	inputFlashcardDataArraySchema,
 	type InputFlashcardData,
 } from "../index";
-import { ErrorNotice } from "./ErrorNotice";
+import { ErrorNotice, SuccessNotice } from "./ErrorNotice";
 import { VaultStorageService } from "../services/VaultStorageService";
 import type { CreateFlashcardFilesPluginSettings } from "../settings";
 
@@ -103,32 +103,39 @@ export class CreateFlashcardFileModal extends Modal {
 			return;
 		}
 
+		let parsed: unknown;
 		try {
-			const parsed: unknown = JSON.parse(rawJson);
-			const result = inputFlashcardDataArraySchema.safeParse(parsed);
-
-			if (!result.success) {
-				console.warn("Invalid flashcard data:", result.error.flatten());
-				return;
-			}
-
-
-			const controller = new FlashcardController(
-				new VaultStorageService(this.app.vault),
-				new CambridgeAudioService(),
-				new FlashcardFileBuilder(new FlashcardBuilder()),
-				this.settings,
-			);
-
-			const flashcards: InputFlashcardData[] = result.data;
-			for (const flashcard of flashcards) {
-				await controller.createFlashcard(flashcard);
-			}
-
+			parsed = JSON.parse(rawJson) as unknown;
 		} catch (error) {
 			const message = "Failed to parse flashcard JSON. See console for details.";
 			new ErrorNotice(message);
 			console.error(message, error);
+			return;
+		}
+
+		const result = inputFlashcardDataArraySchema.safeParse(parsed);
+		if (!result.success) {
+			console.warn("Invalid flashcard data:", result.error.flatten());
+			return;
+		}
+
+		const controller = new FlashcardController(
+			new VaultStorageService(this.app.vault),
+			new CambridgeAudioService(),
+			new FlashcardFileBuilder(new FlashcardBuilder()),
+			this.settings,
+		);
+
+		const flashcards: InputFlashcardData[] = result.data;
+		for (const flashcard of flashcards) {
+			try {
+				await controller.createFlashcard(flashcard);
+				new SuccessNotice(`Flashcard for "${flashcard.phrase}" term created successfully.`);
+			} catch (error) {
+				const message = "Failed to create flashcard. See console for details.";
+				new ErrorNotice(message);
+				console.error(message, error);
+			}
 		}
 	};
 }
