@@ -28,7 +28,7 @@ export class CreateFlashcardFilesSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Flashcard audio folder")
 			.setDesc(
-				"Folder where pronunciation audio (and other flashcard media) will be stored. Path is relative to the vault root.",
+				"Folder where pronunciation audio will be stored. Path is relative to the vault root.",
 			)
 			.addText((text) => {
 				text
@@ -45,7 +45,7 @@ export class CreateFlashcardFilesSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Flashcard file folder")
 			.setDesc(
-				"Folder where generated flashcard notes (e.g. '(VOC) attract.md') will be stored. Leave empty to use the vault root.",
+				"Folder where generated flashcard notes will be stored. Path is relative to the vault root.",
 			)
 			.addText((text) => {
 				text

@@ -40,3 +40,13 @@
 		0 10px 30px rgba(0, 0, 0, 0.45);
 	font-weight: 500;
 }
+
+.notice.success-notice {
+	background-color: rgba(72, 187, 120, 0.14);
+	border: 1px solid rgba(72, 187, 120, 0.9);
+	color: var(--text-success, #4fd1c5);
+	box-shadow:
+		0 0 0 1px rgba(72, 187, 120, 0.4),
+		0 10px 30px rgba(0, 0, 0, 0.45);
+	font-weight: 500;
+}
