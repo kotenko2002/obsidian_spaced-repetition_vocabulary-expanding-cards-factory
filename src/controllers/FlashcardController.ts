@@ -26,7 +26,7 @@ export class FlashcardController {
 		const dataWithAudio: FlashcardData = { ...data, audioFilePaths };
 		const flashcardMarkdown = this.buildFlashcardMarkdown(dataWithAudio);
 
-		await this.createFlashcardFile(flashcardMarkdown, data.phrase);
+		await this.createFlashcardFile(flashcardMarkdown, data.term);
 	}
 
 	private async downloadAudioFilesAndGetPaths(
@@ -34,21 +34,21 @@ export class FlashcardController {
 	): Promise<FlashcardAudioFilePaths> {
 		await this.storage.createFolderIfNotExists(this.audioFolderPath);
 
-		const lookupPhrases = (data.lookupPhrase && data.lookupPhrase.length > 0)
-			? data.lookupPhrase
-			: [data.phrase];
+		const lookupTerms = (data.lookupTerm && data.lookupTerm.length > 0)
+			? data.lookupTerm
+			: [data.term];
 		const audioUsPaths: string[] = [];
 		const audioUkPaths: string[] = [];
 
-		for (const lookupPhrase of lookupPhrases) {
-			const trimmedLookupPhrase = lookupPhrase.trim();
-			if (!trimmedLookupPhrase) {
+		for (const lookupTerm of lookupTerms) {
+			const trimmedLookupTerm = lookupTerm.trim();
+			if (!trimmedLookupTerm) {
 				continue;
 			}
 
-			const { ukData, usData } = await this.cambridgeAudioService.fetch(trimmedLookupPhrase);
+			const { ukData, usData } = await this.cambridgeAudioService.fetch(trimmedLookupTerm);
 
-			const audioFileBase = termToAudioFileBase(trimmedLookupPhrase);
+			const audioFileBase = termToAudioFileBase(trimmedLookupTerm);
 			const ukPath = `${this.audioFolderPath}/${audioFileBase}_uk.ogg`;
 			const usPath = `${this.audioFolderPath}/${audioFileBase}_us.ogg`;
 
@@ -78,9 +78,9 @@ export class FlashcardController {
 
 	private async createFlashcardFile(
 		flashcardMarkdown: string,
-		phrase: string,
+		term: string,
 	): Promise<string> {
-		const flashcardFileBase = termToFlashcardFileBase(phrase);
+		const flashcardFileBase = termToFlashcardFileBase(term);
 		const flashcardFileName = `(VOC) ${flashcardFileBase}.md`;
 		const flashcardFilePath = `${this.flashcardFolderPath}/${flashcardFileName}`;
 

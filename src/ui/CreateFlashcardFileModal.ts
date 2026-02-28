@@ -130,7 +130,7 @@ export class CreateFlashcardFileModal extends Modal {
 		for (const flashcard of flashcards) {
 			try {
 				await controller.createFlashcard(flashcard);
-				new SuccessNotice(`Flashcard for "${flashcard.phrase}" term created successfully.`);
+				new SuccessNotice(`Flashcard for "${flashcard.term}" term created successfully.`);
 			} catch (error) {
 				const message = "Failed to create flashcard. See console for details.";
 				new ErrorNotice(message);

@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const inputFlashcardDataSchema = z.object({
-	phrase: z.string(),
+	term: z.string(),
 	explanation: z.string(),
 	sentences: z.array(z.string()),
-	lookupPhrase: z.array(z.string()).optional(),
+	lookupTerm: z.array(z.string()).optional(),
 });
 
 export type InputFlashcardData = z.infer<typeof inputFlashcardDataSchema>;

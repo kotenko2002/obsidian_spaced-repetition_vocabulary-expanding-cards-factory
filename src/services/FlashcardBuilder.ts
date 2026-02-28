@@ -20,8 +20,8 @@ export class FlashcardBuilder implements IFlashcardBuilder {
 		return this;
 	}
 
-	public addPhraseExplanation(phrase: string, explanation: string): IFlashcardBuilder {
-		this.content += `**${phrase}** — ${explanation}${LINE_BREAK}`;
+	public addTermExplanation(term: string, explanation: string): IFlashcardBuilder {
+		this.content += `**${term}** — ${explanation}${LINE_BREAK}`;
 		return this;
 	}
 

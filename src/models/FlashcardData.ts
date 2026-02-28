@@ -1,5 +1,5 @@
 export interface FlashcardData {
-	phrase: string;
+	term: string;
 	explanation: string;
 	sentences: string[];
 	audioFilePaths: FlashcardAudioFilePaths;
