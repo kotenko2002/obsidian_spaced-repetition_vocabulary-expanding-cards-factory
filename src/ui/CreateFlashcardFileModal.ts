@@ -97,6 +97,7 @@ export class CreateFlashcardFileModal extends Modal {
 
 	private handleParseClick = async () => {
 		const rawJson = this.inputEl.value.trim();
+		let hadError = false;
 
 		if (!rawJson) {
 			console.warn("No JSON provided for flashcards.");
@@ -110,12 +111,14 @@ export class CreateFlashcardFileModal extends Modal {
 			const message = "Failed to parse flashcard JSON. See console for details.";
 			new ErrorNotice(message);
 			console.error(message, error);
+			hadError = true;
 			return;
 		}
 
 		const result = inputFlashcardDataArraySchema.safeParse(parsed);
 		if (!result.success) {
 			console.warn("Invalid flashcard data:", result.error.flatten());
+			hadError = true;
 			return;
 		}
 
@@ -135,7 +138,12 @@ export class CreateFlashcardFileModal extends Modal {
 				const message = "Failed to create flashcard. See console for details.";
 				new ErrorNotice(message);
 				console.error(message, error);
+				hadError = true;
 			}
+		}
+
+		if (!hadError) {
+			this.close();
 		}
 	};
 }

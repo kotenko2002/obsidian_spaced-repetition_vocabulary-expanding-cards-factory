@@ -1,7 +1,7 @@
 {
 	"name": "create-flashcard-files-plugin",
 	"version": "1.0.0",
-	"description": "This is a simple plugin for Obsidian (https://obsidian.md) for creating flashcards for spaced repetition plugin ",
+	"description": "Obsidian plugin that creates vocabulary flashcard Markdown files from JSON input: sentence-gap, direct-translation, and listening cards, with optional Cambridge Dictionary audio (US/UK) and configurable output folders for use with spaced repetition. ",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {
