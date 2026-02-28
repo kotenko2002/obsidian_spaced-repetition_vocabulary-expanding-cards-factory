@@ -1,5 +1,5 @@
 export { FlashcardBuilder } from "./services/FlashcardBuilder";
-export { FlashcardDirector } from "./services/FlashcardDirector";
+export { FlashcardController } from "./controllers/FlashcardController";
 export { FlashcardFileBuilder } from "./services/FlashcardFileBuilder";
 export type { IFlashcardFileBuilder } from "./services/interfaces/IFlashcardFileBuilder";
 export type { IFlashcardBuilder } from "./services/interfaces/IFlashcardBuilder";

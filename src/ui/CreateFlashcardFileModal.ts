@@ -2,7 +2,7 @@ import { App, Modal } from "obsidian";
 import {
 	CambridgeAudioService,
 	FlashcardBuilder,
-	FlashcardDirector,
+	FlashcardController,
 	FlashcardFileBuilder,
 	inputFlashcardDataArraySchema,
 	type InputFlashcardData,
@@ -112,23 +112,19 @@ export class CreateFlashcardFileModal extends Modal {
 				return;
 			}
 
-			const flashcards: InputFlashcardData[] = result.data;
 
-			const director = new FlashcardDirector(
+			const controller = new FlashcardController(
 				new VaultStorageService(this.app.vault),
 				new CambridgeAudioService(),
 				new FlashcardFileBuilder(new FlashcardBuilder()),
 				this.settings,
 			);
 
-			const builtCards: string[] = [];
+			const flashcards: InputFlashcardData[] = result.data;
 			for (const flashcard of flashcards) {
-				const built = await director.buildAllCards(flashcard);
-				console.debug(built);
-				builtCards.push(built);
+				await controller.createFlashcard(flashcard);
 			}
 
-			console.debug("Built flashcard markdown:", builtCards);
 		} catch (error) {
 			const message = "Failed to parse flashcard JSON. See console for details.";
 			new ErrorNotice(message);

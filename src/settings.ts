@@ -43,13 +43,13 @@ export class CreateFlashcardFilesSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Flashcard files folder")
+			.setName("Flashcard file folder")
 			.setDesc(
 				"Folder where generated flashcard notes (e.g. '(VOC) attract.md') will be stored. Leave empty to use the vault root.",
 			)
 			.addText((text) => {
 				text
-					.setPlaceholder("Specify the folder for flashcard markdown files")
+					.setPlaceholder("Specify the folder for flashcard Markdown files")
 					.setValue(this.plugin.settings.flashcardFileFolderPath)
 					.onChange(async (value) => {
 						this.plugin.settings.flashcardFileFolderPath = value.trim();
