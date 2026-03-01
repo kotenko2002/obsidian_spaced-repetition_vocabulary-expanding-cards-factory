@@ -1,6 +1,7 @@
 import type { IFlashcardFileBuilder } from "../services/interfaces/IFlashcardFileBuilder";
 import type { CambridgeAudioService } from "../services/CambridgeAudioService";
 import { VaultStorageService } from "../services/VaultStorageService";
+import { convertOggToMp3 } from "../services/AudioConversionService";
 import { termToAudioFileBase, termToFlashcardFileBase } from "../helpers/termHelpers";
 import { CreateFlashcardFilesPluginSettings, DEFAULT_SETTINGS } from "../settings";
 import { InputFlashcardData } from "../models/InputFlashcardData";
@@ -48,16 +49,21 @@ export class FlashcardController {
 
 			const { ukData, usData } = await this.cambridgeAudioService.fetch(trimmedLookupTerm);
 
+			const [ukMp3Data, usMp3Data] = await Promise.all([
+				convertOggToMp3(ukData),
+				convertOggToMp3(usData),
+			]);
+
 			const audioFileBase = termToAudioFileBase(trimmedLookupTerm);
-			const ukPath = `${this.audioFolderPath}/${audioFileBase}_uk.ogg`;
-			const usPath = `${this.audioFolderPath}/${audioFileBase}_us.ogg`;
+			const ukPath = `${this.audioFolderPath}/${audioFileBase}_uk.mp3`;
+			const usPath = `${this.audioFolderPath}/${audioFileBase}_us.mp3`;
 
 			audioUkPaths.push(ukPath);
 			audioUsPaths.push(usPath);
 
 			await Promise.all([
-				this.storage.createBinaryIfNotExists(ukPath, ukData),
-				this.storage.createBinaryIfNotExists(usPath, usData),
+				this.storage.createBinaryIfNotExists(ukPath, ukMp3Data),
+				this.storage.createBinaryIfNotExists(usPath, usMp3Data),
 			]);
 		}
 
