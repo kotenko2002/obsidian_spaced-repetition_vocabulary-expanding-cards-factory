@@ -21,7 +21,7 @@ export class FlashcardBuilder implements IFlashcardBuilder {
 	}
 
 	public addSentenceAnswer(sentenceAnswer: string): IFlashcardBuilder {
-		this.content += `**${sentenceAnswer}**${LINE_BREAK}`;
+		this.content += `==${sentenceAnswer}==${LINE_BREAK}`;
 		return this;
 	}
 

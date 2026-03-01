@@ -34,11 +34,16 @@ export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 			throw new RangeError(`Invalid sentenceIndex: ${sentenceIndex}`);
 		}
 
-		const cardContent = this.flashcardBuilder.reset()
+		const builder = this.flashcardBuilder.reset()
 			.addTitle(SENTENCE_GAP_TITLE)
 			.addSentence(sentenceData.sentence)
-			.addQuestionLine()
-			.addSentenceAnswer(sentenceData.termInSentenceForm)
+			.addQuestionLine();
+
+		if (sentenceData.termInSentenceForm !== data.term) {
+			builder.addSentenceAnswer(sentenceData.termInSentenceForm);
+		}
+		
+		const cardContent = builder
 			.addTermExplanation(data.term, data.explanation)
 			.addAudioUs(data.audioFilePaths.us)
 			.addAudioUk(data.audioFilePaths.uk)
