@@ -29,15 +29,16 @@ export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 	}
 
 	public addSentenceGapCard(data: FlashcardData, sentenceIndex: number): IFlashcardFileBuilder {
-		const sentence = data.sentences[sentenceIndex];
-		if (sentence === undefined) {
+		const sentenceData = data.sentences[sentenceIndex];
+		if (sentenceData === undefined) {
 			throw new RangeError(`Invalid sentenceIndex: ${sentenceIndex}`);
 		}
 
 		const cardContent = this.flashcardBuilder.reset()
 			.addTitle(SENTENCE_GAP_TITLE)
-			.addSentence(sentence)
+			.addSentence(sentenceData.sentence)
 			.addQuestionLine()
+			.addSentenceAnswer(sentenceData.termInSentenceForm)
 			.addTermExplanation(data.term, data.explanation)
 			.addAudioUs(data.audioFilePaths.us)
 			.addAudioUk(data.audioFilePaths.uk)

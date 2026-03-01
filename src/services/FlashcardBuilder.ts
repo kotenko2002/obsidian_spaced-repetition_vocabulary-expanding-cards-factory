@@ -20,6 +20,11 @@ export class FlashcardBuilder implements IFlashcardBuilder {
 		return this;
 	}
 
+	public addSentenceAnswer(sentenceAnswer: string): IFlashcardBuilder {
+		this.content += `**${sentenceAnswer}**${LINE_BREAK}`;
+		return this;
+	}
+
 	public addTermExplanation(term: string, explanation: string): IFlashcardBuilder {
 		this.content += `**${term}** — ${explanation}${LINE_BREAK}`;
 		return this;

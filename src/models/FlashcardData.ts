@@ -1,7 +1,9 @@
+import type { InputSentenceData } from "./InputFlashcardData";
+
 export interface FlashcardData {
 	term: string;
 	explanation: string;
-	sentences: string[];
+	sentences: InputSentenceData[];
 	audioFilePaths: FlashcardAudioFilePaths;
 }
 
