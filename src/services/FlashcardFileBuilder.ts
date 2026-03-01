@@ -87,6 +87,7 @@ export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 	}
 
 	public reset(): IFlashcardFileBuilder {
+		this.cards = [];
 		this.flashcardBuilder.reset();
 		return this;
 	}

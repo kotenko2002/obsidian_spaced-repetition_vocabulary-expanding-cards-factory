@@ -18,7 +18,7 @@
 .create-flashcard-file-modal__textarea {
 	width: 100%;
 	resize: vertical;
-	min-height: 8rem;
+	min-height: 24rem;
 }
 
 .create-flashcard-file-modal__actions {
