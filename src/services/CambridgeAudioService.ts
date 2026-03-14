@@ -31,6 +31,8 @@ export class CambridgeAudioService {
 		const urlSegment = termToUrlSegment(term);
 		const dictUrl = `${CAMBRIDGE_BASE_URL}/dictionary/english/${urlSegment}`;
 
+		console.log('dictUrl', dictUrl);
+
 		const response = await requestUrl({
 			url: dictUrl,
 			headers: { "User-Agent": USER_AGENT },
