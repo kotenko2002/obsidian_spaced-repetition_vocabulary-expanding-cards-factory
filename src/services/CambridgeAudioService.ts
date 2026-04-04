@@ -44,9 +44,22 @@ function extractOggUrlsFromPosHeaders(html: string): ExtractedAudioUrls {
 	return { uk, us };
 }
 
+function randomDelay(): Promise<void> {
+	const ms = 4000 + Math.random() * 8000;
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 // TODO: add interface and create fallback class
 export class CambridgeAudioService {
+	private isFirstFetch = true;
+
 	public async fetch(term: string): Promise<CambridgeAudioDownloadResult> {
+		if (this.isFirstFetch) {
+			this.isFirstFetch = false;
+		} else {
+			await randomDelay();
+		}
+
 		const urlSegment = termToUrlSegment(term);
 		const dictUrl = `${CAMBRIDGE_BASE_URL}/dictionary/english/${urlSegment}`;
 
