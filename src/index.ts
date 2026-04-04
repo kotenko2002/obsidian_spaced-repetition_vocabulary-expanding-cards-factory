@@ -11,3 +11,4 @@ export {
 	CambridgeAudioService,
 	type CambridgeAudioDownloadResult,
 } from "./services/CambridgeAudioService";
+export { InfoNotice } from "./ui/ErrorNotice";

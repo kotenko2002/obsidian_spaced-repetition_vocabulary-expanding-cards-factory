@@ -3,6 +3,7 @@ import type { CambridgeAudioService } from "../services/CambridgeAudioService";
 import { VaultStorageService } from "../services/VaultStorageService";
 import { concatenateMp3, convertOggToMp3 } from "../services/AudioConversionService";
 import { termToAudioFileBase, termToFlashcardFileBase } from "../helpers/termHelpers";
+import { InfoNotice } from "../ui/ErrorNotice";
 import { CreateFlashcardFilesPluginSettings, DEFAULT_SETTINGS } from "../settings";
 import { InputFlashcardData } from "../models/InputFlashcardData";
 import type { FlashcardAudioFilePaths, FlashcardData } from "../models/FlashcardData";
@@ -96,14 +97,31 @@ export class FlashcardController {
 			throw new Error(`Could not find audio for "${term}".`);
 		}
 
+		new InfoNotice(`Downloading audio for ${words.length} words with random pauses (4-12s)...`);
+
 		const results: { uk: ArrayBuffer | null; us: ArrayBuffer | null }[] = [];
-		for (const word of words) {
-			const { ukData, usData } = await this.cambridgeAudioService.fetch(word);
+		for (let i = 0; i < words.length; i++) {
+			if (i > 0) {
+				await this.countdownDelay(words[i]!);
+			}
+
+			new InfoNotice(`Downloading audio: "${words[i]}" (${i + 1}/${words.length})`);
+			const { ukData, usData } = await this.cambridgeAudioService.fetch(words[i]!);
 			const uk = ukData ? await convertOggToMp3(ukData) : null;
 			const us = usData ? await convertOggToMp3(usData) : null;
 			results.push({ uk, us });
 		}
 		return results;
+	}
+
+	private async countdownDelay(nextWord: string): Promise<void> {
+		const totalSeconds = Math.floor(4 + Math.random() * 9);
+		const notice = new InfoNotice(`Next word "${nextWord}" in ${totalSeconds}s...`, 0);
+		for (let s = totalSeconds; s > 0; s--) {
+			notice.setMessage(`Next word "${nextWord}" in ${s}s...`);
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+		}
+		notice.hide();
 	}
 
 	private buildFlashcardMarkdown(dataWithAudio: FlashcardData): string {
