@@ -71,6 +71,7 @@ export class CreateFlashcardFileModal extends Modal {
 		});
 
 		this.parseButtonEl.disabled = true;
+		this.parseButtonEl.title = "Enter valid JSON to enable";
 
 		this.inputEl.addEventListener("input", this.handleInputChange);
 		this.parseButtonEl.addEventListener("click", () => {
@@ -82,18 +83,23 @@ export class CreateFlashcardFileModal extends Modal {
 		const rawJson = this.inputEl.value.trim();
 
 		if (!rawJson) {
-			this.parseButtonEl.disabled = true;
+			this.setParseButtonEnabled(false);
 			return;
 		}
 
 		try {
 			const parsed: unknown = JSON.parse(rawJson);
 			const result = inputFlashcardDataArraySchema.safeParse(parsed);
-			this.parseButtonEl.disabled = !result.success;
+			this.setParseButtonEnabled(result.success);
 		} catch {
-			this.parseButtonEl.disabled = true;
+			this.setParseButtonEnabled(false);
 		}
 	};
+
+	private setParseButtonEnabled(enabled: boolean) {
+		this.parseButtonEl.disabled = !enabled;
+		this.parseButtonEl.title = enabled ? "" : "Enter valid JSON to enable";
+	}
 
 	private handleParseClick = async () => {
 		const rawJson = this.inputEl.value.trim();

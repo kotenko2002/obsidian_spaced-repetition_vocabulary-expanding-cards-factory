@@ -39,7 +39,7 @@ export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 			.addSentence(sentenceData.sentence)
 			.addQuestionLine();
 
-		if (sentenceData.termInSentenceForm !== data.term) {
+		if (sentenceData.termInSentenceForm.toLowerCase() !== data.term.toLowerCase()) {
 			builder.addSentenceAnswer(sentenceData.termInSentenceForm);
 		}
 		
