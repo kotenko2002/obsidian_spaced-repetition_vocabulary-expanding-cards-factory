@@ -10,6 +10,7 @@ export const inputFlashcardDataSchema = z.object({
 	explanation: z.string(),
 	sentences: z.array(inputSentenceSchema),
 	skipFullTermLookup: z.boolean().optional(),
+	skipAudio: z.boolean().optional(),
 });
 
 export type InputSentenceData = z.infer<typeof inputSentenceSchema>;

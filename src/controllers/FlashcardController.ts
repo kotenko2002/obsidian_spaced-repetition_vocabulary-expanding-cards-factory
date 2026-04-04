@@ -22,7 +22,9 @@ export class FlashcardController {
 	}
 
 	public async createFlashcard(data: InputFlashcardData) {
-		const audioFilePaths = await this.downloadAudioFilesAndGetPaths(data);
+		const audioFilePaths = data.skipAudio
+			? { uk: [], us: [] }
+			: await this.downloadAudioFilesAndGetPaths(data);
 
 		const dataWithAudio: FlashcardData = { ...data, audioFilePaths };
 		const flashcardMarkdown = this.buildFlashcardMarkdown(dataWithAudio);
@@ -105,12 +107,19 @@ export class FlashcardController {
 	}
 
 	private buildFlashcardMarkdown(dataWithAudio: FlashcardData): string {
-		return this.fileBuilder
+		const builder = this.fileBuilder
 			.reset()
 			.addSentenceGapCards(dataWithAudio)
-			.addDirectTranslationCard(dataWithAudio)
-			.addListeningCard(dataWithAudio)
-			.build();
+			.addDirectTranslationCard(dataWithAudio);
+
+		const hasAudio = dataWithAudio.audioFilePaths.uk.length > 0
+			|| dataWithAudio.audioFilePaths.us.length > 0;
+
+		if (hasAudio) {
+			builder.addListeningCard(dataWithAudio);
+		}
+
+		return builder.build();
 	}
 
 	private async createFlashcardFile(
