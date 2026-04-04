@@ -1,7 +1,7 @@
 import type { IFlashcardFileBuilder } from "../services/interfaces/IFlashcardFileBuilder";
 import type { CambridgeAudioService } from "../services/CambridgeAudioService";
 import { VaultStorageService } from "../services/VaultStorageService";
-import { convertOggToMp3 } from "../services/AudioConversionService";
+import { concatenateMp3, convertOggToMp3 } from "../services/AudioConversionService";
 import { termToAudioFileBase, termToFlashcardFileBase } from "../helpers/termHelpers";
 import { CreateFlashcardFilesPluginSettings, DEFAULT_SETTINGS } from "../settings";
 import { InputFlashcardData } from "../models/InputFlashcardData";
@@ -38,38 +38,46 @@ export class FlashcardController {
 		const lookupTerms = (data.lookupTerm && data.lookupTerm.length > 0)
 			? data.lookupTerm
 			: [data.term];
-		const audioUsPaths: string[] = [];
-		const audioUkPaths: string[] = [];
+
+		const ukMp3Buffers: ArrayBuffer[] = [];
+		const usMp3Buffers: ArrayBuffer[] = [];
 
 		for (const lookupTerm of lookupTerms) {
-			const trimmedLookupTerm = lookupTerm.trim();
-			if (!trimmedLookupTerm) {
+			const trimmed = lookupTerm.trim();
+			if (!trimmed) {
 				continue;
 			}
 
-			const { ukData, usData } = await this.cambridgeAudioService.fetch(trimmedLookupTerm);
+			const { ukData, usData } = await this.cambridgeAudioService.fetch(trimmed);
 
-			const [ukMp3Data, usMp3Data] = await Promise.all([
+			const [ukMp3, usMp3] = await Promise.all([
 				convertOggToMp3(ukData),
 				convertOggToMp3(usData),
 			]);
 
-			const audioFileBase = termToAudioFileBase(trimmedLookupTerm);
-			const ukPath = `${this.audioFolderPath}/${audioFileBase}_uk.mp3`;
-			const usPath = `${this.audioFolderPath}/${audioFileBase}_us.mp3`;
-
-			audioUkPaths.push(ukPath);
-			audioUsPaths.push(usPath);
-
-			await Promise.all([
-				this.storage.createBinaryIfNotExists(ukPath, ukMp3Data),
-				this.storage.createBinaryIfNotExists(usPath, usMp3Data),
-			]);
+			ukMp3Buffers.push(ukMp3);
+			usMp3Buffers.push(usMp3);
 		}
 
+		const [finalUk, finalUs] = ukMp3Buffers.length > 1
+			? await Promise.all([
+				concatenateMp3(ukMp3Buffers),
+				concatenateMp3(usMp3Buffers),
+			])
+			: [ukMp3Buffers[0]!, usMp3Buffers[0]!];
+
+		const audioFileBase = termToAudioFileBase(data.term);
+		const ukPath = `${this.audioFolderPath}/${audioFileBase}_uk.mp3`;
+		const usPath = `${this.audioFolderPath}/${audioFileBase}_us.mp3`;
+
+		await Promise.all([
+			this.storage.createBinaryIfNotExists(ukPath, finalUk),
+			this.storage.createBinaryIfNotExists(usPath, finalUs),
+		]);
+
 		return {
-			uk: audioUkPaths,
-			us: audioUsPaths,
+			uk: [ukPath],
+			us: [usPath],
 		};
 	}
 
