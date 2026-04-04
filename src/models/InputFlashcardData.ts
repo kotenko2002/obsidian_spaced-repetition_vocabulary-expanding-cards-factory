@@ -9,7 +9,7 @@ export const inputFlashcardDataSchema = z.object({
 	term: z.string(),
 	explanation: z.string(),
 	sentences: z.array(inputSentenceSchema),
-	lookupTerm: z.array(z.string()).optional(),
+	skipFullTermLookup: z.boolean().optional(),
 });
 
 export type InputSentenceData = z.infer<typeof inputSentenceSchema>;

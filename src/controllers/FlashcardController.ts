@@ -35,26 +35,13 @@ export class FlashcardController {
 	): Promise<FlashcardAudioFilePaths> {
 		await this.storage.createFolderIfNotExists(this.audioFolderPath);
 
-		const lookupTerms = (data.lookupTerm && data.lookupTerm.length > 0)
-			? data.lookupTerm
-			: [data.term];
-
 		const ukMp3Buffers: ArrayBuffer[] = [];
 		const usMp3Buffers: ArrayBuffer[] = [];
 
-		for (const lookupTerm of lookupTerms) {
-			const trimmed = lookupTerm.trim();
-			if (!trimmed) {
-				continue;
-			}
-
-			const { ukData, usData } = await this.cambridgeAudioService.fetch(trimmed);
-
-			const ukMp3 = ukData ? await convertOggToMp3(ukData) : null;
-			const usMp3 = usData ? await convertOggToMp3(usData) : null;
-
-			if (ukMp3) ukMp3Buffers.push(ukMp3);
-			if (usMp3) usMp3Buffers.push(usMp3);
+		const fetchedBuffers = await this.fetchAndConvert(data.term, data.skipFullTermLookup ?? false);
+		for (const { uk, us } of fetchedBuffers) {
+			if (uk) ukMp3Buffers.push(uk);
+			if (us) usMp3Buffers.push(us);
 		}
 
 		const audioFileBase = termToAudioFileBase(data.term);
@@ -83,6 +70,38 @@ export class FlashcardController {
 			uk: ukPaths,
 			us: usPaths,
 		};
+	}
+
+	private async fetchAndConvert(
+		term: string,
+		skipFullTermLookup: boolean,
+	): Promise<{ uk: ArrayBuffer | null; us: ArrayBuffer | null }[]> {
+		if (!skipFullTermLookup) {
+			try {
+				const { ukData, usData } = await this.cambridgeAudioService.fetch(term);
+				const uk = ukData ? await convertOggToMp3(ukData) : null;
+				const us = usData ? await convertOggToMp3(usData) : null;
+				return [{ uk, us }];
+			} catch {
+				console.log(
+					`Audio not found for full term "${term}", falling back to individual words.`,
+				);
+			}
+		}
+
+		const words = term.split(/\s+/).filter((w) => w.length > 0);
+		if (words.length <= 1) {
+			throw new Error(`Could not find audio for "${term}".`);
+		}
+
+		const results: { uk: ArrayBuffer | null; us: ArrayBuffer | null }[] = [];
+		for (const word of words) {
+			const { ukData, usData } = await this.cambridgeAudioService.fetch(word);
+			const uk = ukData ? await convertOggToMp3(ukData) : null;
+			const us = usData ? await convertOggToMp3(usData) : null;
+			results.push({ uk, us });
+		}
+		return results;
 	}
 
 	private buildFlashcardMarkdown(dataWithAudio: FlashcardData): string {
