@@ -7,22 +7,41 @@ const USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 const OGG_URL_PATTERN = /\/media\/english\/[^"']+\.ogg/g;
 
 export interface CambridgeAudioDownloadResult {
-	ukData: ArrayBuffer;
-	usData: ArrayBuffer;
+	ukData: ArrayBuffer | null;
+	usData: ArrayBuffer | null;
 }
 
-function extractOggUrlsFromPosHeaders(html: string): string[] {
+interface ExtractedAudioUrls {
+	uk: string | null;
+	us: string | null;
+}
+
+function extractOggUrlsFromPosHeaders(html: string): ExtractedAudioUrls {
 	const parser = new DOMParser();
 	const doc = parser.parseFromString(html, "text/html");
 	const entryElement = doc.querySelector(".entry-body__el:has(.pos-header)");
 
 	if (!entryElement) {
-		return [];
+		return { uk: null, us: null };
 	}
 
 	const posHeaderElement = entryElement.querySelector("div.pos-header")!;
 	const matches = posHeaderElement.innerHTML.match(OGG_URL_PATTERN);
-	return matches ?? [];
+	if (!matches) {
+		return { uk: null, us: null };
+	}
+
+	let uk: string | null = null;
+	let us: string | null = null;
+	for (const url of matches) {
+		if (!uk && url.includes("uk_pron")) {
+			uk = url;
+		} else if (!us && url.includes("us_pron")) {
+			us = url;
+		}
+	}
+
+	return { uk, us };
 }
 
 // TODO: add interface and create fallback class
@@ -39,30 +58,24 @@ export class CambridgeAudioService {
 			throw: true,
 		});
 
-		const matches = extractOggUrlsFromPosHeaders(response.text);
-		if (!matches || matches.length < 2) {
-			const message =
-				`Could not find both UK and US audio for "${term}". Found ${matches?.length ?? 0} match(es).`;
-
+		const audioUrls = extractOggUrlsFromPosHeaders(response.text);
+		if (!audioUrls.uk && !audioUrls.us) {
+			const message = `Could not find any audio for "${term}".`;
 			new ErrorNotice(message);
 			throw new Error(message);
 		}
 
-		const ukRelativePath = matches[0];
-		const usRelativePath = matches[1];
+		const ukBuffer = audioUrls.uk
+			? await this.downloadAudio(`${CAMBRIDGE_BASE_URL}${audioUrls.uk}`)
+			: null;
+		const usBuffer = audioUrls.us
+			? await this.downloadAudio(`${CAMBRIDGE_BASE_URL}${audioUrls.us}`)
+			: null;
 
-		const [ukBuffer, usBuffer] = await Promise.all([
-			this.downloadAudio(`${CAMBRIDGE_BASE_URL}${ukRelativePath}`),
-			this.downloadAudio(`${CAMBRIDGE_BASE_URL}${usRelativePath}`),
-		]);
-
-		if (ukBuffer.byteLength === 0 || usBuffer.byteLength === 0) {
-			const message = "One or both audio files are empty.";
-			new ErrorNotice(message);
-			throw new Error(message);
-		}
-
-		return { ukData: ukBuffer, usData: usBuffer };
+		return {
+			ukData: ukBuffer && ukBuffer.byteLength > 0 ? ukBuffer : null,
+			usData: usBuffer && usBuffer.byteLength > 0 ? usBuffer : null,
+		};
 	}
 
 	private async downloadAudio(url: string): Promise<ArrayBuffer> {

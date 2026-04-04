@@ -48,6 +48,9 @@ export class FlashcardBuilder implements IFlashcardBuilder {
 	}
 
 	private addAudioSection(emoji: string, audioPaths: string[]): IFlashcardBuilder {
+		if (audioPaths.length === 0) {
+			return this;
+		}
 		this.content += `${emoji}${LINE_BREAK}`;
 		for (const path of audioPaths) {
 			this.content += `![[${path}]]${LINE_BREAK}`;

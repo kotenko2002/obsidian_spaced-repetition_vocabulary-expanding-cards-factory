@@ -50,34 +50,38 @@ export class FlashcardController {
 
 			const { ukData, usData } = await this.cambridgeAudioService.fetch(trimmed);
 
-			const [ukMp3, usMp3] = await Promise.all([
-				convertOggToMp3(ukData),
-				convertOggToMp3(usData),
-			]);
+			const ukMp3 = ukData ? await convertOggToMp3(ukData) : null;
+			const usMp3 = usData ? await convertOggToMp3(usData) : null;
 
-			ukMp3Buffers.push(ukMp3);
-			usMp3Buffers.push(usMp3);
+			if (ukMp3) ukMp3Buffers.push(ukMp3);
+			if (usMp3) usMp3Buffers.push(usMp3);
 		}
 
-		const [finalUk, finalUs] = ukMp3Buffers.length > 1
-			? await Promise.all([
-				concatenateMp3(ukMp3Buffers),
-				concatenateMp3(usMp3Buffers),
-			])
-			: [ukMp3Buffers[0]!, usMp3Buffers[0]!];
-
 		const audioFileBase = termToAudioFileBase(data.term);
-		const ukPath = `${this.audioFolderPath}/${audioFileBase}_uk.mp3`;
-		const usPath = `${this.audioFolderPath}/${audioFileBase}_us.mp3`;
+		const ukPaths: string[] = [];
+		const usPaths: string[] = [];
 
-		await Promise.all([
-			this.storage.createBinaryIfNotExists(ukPath, finalUk),
-			this.storage.createBinaryIfNotExists(usPath, finalUs),
-		]);
+		if (ukMp3Buffers.length > 0) {
+			const finalUk = ukMp3Buffers.length > 1
+				? await concatenateMp3(ukMp3Buffers)
+				: ukMp3Buffers[0]!;
+			const ukPath = `${this.audioFolderPath}/${audioFileBase}_uk.mp3`;
+			await this.storage.createBinaryIfNotExists(ukPath, finalUk);
+			ukPaths.push(ukPath);
+		}
+
+		if (usMp3Buffers.length > 0) {
+			const finalUs = usMp3Buffers.length > 1
+				? await concatenateMp3(usMp3Buffers)
+				: usMp3Buffers[0]!;
+			const usPath = `${this.audioFolderPath}/${audioFileBase}_us.mp3`;
+			await this.storage.createBinaryIfNotExists(usPath, finalUs);
+			usPaths.push(usPath);
+		}
 
 		return {
-			uk: [ukPath],
-			us: [usPath],
+			uk: ukPaths,
+			us: usPaths,
 		};
 	}
 
