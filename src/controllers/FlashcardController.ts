@@ -17,6 +17,7 @@ export class FlashcardController {
 		private readonly cambridgeAudioService: CambridgeAudioService,
 		private readonly fileBuilder: IFlashcardFileBuilder,
 		settings: CreateFlashcardFilesPluginSettings,
+		private readonly delayMultiplier: number = 1,
 	) {
 		this.audioFolderPath = settings.audioFolderPath || DEFAULT_SETTINGS.audioFolderPath;
 		this.flashcardFolderPath = settings.flashcardFileFolderPath || DEFAULT_SETTINGS.flashcardFileFolderPath;
@@ -114,8 +115,8 @@ export class FlashcardController {
 		return results;
 	}
 
-	private async countdownDelay(nextWord: string): Promise<void> {
-		const totalSeconds = Math.floor(4 + Math.random() * 9);
+	public async countdownDelay(nextWord: string): Promise<void> {
+		const totalSeconds = Math.floor((4 + Math.random() * 9) * this.delayMultiplier);
 		const notice = new InfoNotice(`Next word "${nextWord}" in ${totalSeconds}s...`, 0);
 		for (let s = totalSeconds; s > 0; s--) {
 			notice.setMessage(`Next word "${nextWord}" in ${s}s...`);
