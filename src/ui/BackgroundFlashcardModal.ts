@@ -48,7 +48,7 @@ export class BackgroundFlashcardModal extends BaseFlashcardModal {
 
 		for (let i = 0; i < flashcards.length; i++) {
 			if (i > 0) {
-				await controller.countdownDelay(flashcards[i]!.term);
+				await controller.countdownDelay(flashcards[i]!.term, i + 1, flashcards.length);
 			}
 
 			try {

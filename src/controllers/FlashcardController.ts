@@ -115,11 +115,14 @@ export class FlashcardController {
 		return results;
 	}
 
-	public async countdownDelay(nextWord: string): Promise<void> {
+	public async countdownDelay(nextWord: string, index?: number, total?: number): Promise<void> {
 		const totalSeconds = Math.floor((4 + Math.random() * 9) * this.delayMultiplier);
-		const notice = new InfoNotice(`Next word "${nextWord}" in ${totalSeconds}s...`, 0);
+		const label = index != null && total != null
+			? `Next term "${nextWord}" (${index}/${total})`
+			: `Next word "${nextWord}"`;
+		const notice = new InfoNotice(`${label} in ${totalSeconds}s...`, 0);
 		for (let s = totalSeconds; s > 0; s--) {
-			notice.setMessage(`Next word "${nextWord}" in ${s}s...`);
+			notice.setMessage(`${label} in ${s}s...`);
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 		}
 		notice.hide();
