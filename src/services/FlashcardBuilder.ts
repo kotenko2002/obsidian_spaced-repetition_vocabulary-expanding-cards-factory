@@ -38,6 +38,16 @@ export class FlashcardBuilder implements IFlashcardBuilder {
 		return this.addAudioSection("💂‍♂️", audioUk);
 	}
 
+	public addImage(imagePath: string): IFlashcardBuilder {
+		this.content += `![[${imagePath}]]${LINE_BREAK}`;
+		return this;
+	}
+
+	public addFallbackTranslation(translation: string): IFlashcardBuilder {
+		this.content += `*${translation}*${LINE_BREAK}`;
+		return this;
+	}
+
 	public reset(): IFlashcardBuilder {
 		this.content = "";
 		return this;

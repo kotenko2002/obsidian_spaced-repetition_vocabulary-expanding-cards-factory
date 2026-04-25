@@ -1,6 +1,7 @@
 export { FlashcardBuilder } from "./services/FlashcardBuilder";
 export { FlashcardController } from "./controllers/FlashcardController";
 export { FlashcardFileBuilder } from "./services/FlashcardFileBuilder";
+export { AudioDownloadService } from "./services/AudioDownloadService";
 export type { IFlashcardFileBuilder } from "./services/interfaces/IFlashcardFileBuilder";
 export type { IFlashcardBuilder } from "./services/interfaces/IFlashcardBuilder";
 export {
@@ -13,3 +14,4 @@ export {
 } from "./services/CambridgeAudioService";
 export { InfoNotice } from "./ui/ErrorNotice";
 export { BackgroundFlashcardModal } from "./ui/BackgroundFlashcardModal";
+export { ImageFlashcardModal } from "./ui/ImageFlashcardModal";

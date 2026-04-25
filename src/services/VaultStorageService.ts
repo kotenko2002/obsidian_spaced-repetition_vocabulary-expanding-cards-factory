@@ -36,6 +36,17 @@ export class VaultStorageService {
 		}
 	}
 
+	public async writeBinary(binaryPath: string, data: ArrayBuffer): Promise<void> {
+		try {
+			await this.vault.adapter.writeBinary(binaryPath, data);
+		} catch (error) {
+			const logMessage = `[VaultStorage] Failed to write binary at: ${binaryPath}`;
+			new ErrorNotice(logMessage);
+			console.error(logMessage, error);
+			throw new Error(`Could not write file: ${binaryPath}`);
+		}
+	}
+
 	public async createFileIfNotExists(filePath: string, contents: string): Promise<void> {
 		const fileAlreadyExists = await this.vault.adapter.exists(filePath);
 		if (fileAlreadyExists) {

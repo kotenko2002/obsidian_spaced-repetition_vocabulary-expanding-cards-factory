@@ -1,6 +1,7 @@
 import type { IFlashcardFileBuilder } from "./interfaces/IFlashcardFileBuilder";
 import type { IFlashcardBuilder } from "./interfaces/IFlashcardBuilder";
 import type { FlashcardData } from "../models/FlashcardData";
+import type { ImageFlashcardData } from "../models/ImageFlashcardData";
 
 const SENTENCE_GAP_TITLE = "Вправа з пропущеним словом";
 const DIRECT_TRANSLATION_TITLE = "Вправа з прямого перекладу";
@@ -22,6 +23,7 @@ function formatCreatedAt(date: Date): string {
 
 export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 	private cards: string[] = [];
+	private customTags: string[] | null = null;
 	private readonly flashcardBuilder: IFlashcardBuilder;
 
 	constructor(flashcardBuilder: IFlashcardBuilder) {
@@ -91,19 +93,54 @@ export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 		return this;
 	}
 
+	public addSentenceGapWithImageCard(data: ImageFlashcardData): IFlashcardFileBuilder {
+		const builder = this.flashcardBuilder.reset()
+			.addTitle(SENTENCE_GAP_TITLE)
+			.addSentence(data.sentence);
+
+		if (data.imagePath) {
+			builder.addImage(data.imagePath);
+		} else if (data.fallbackTranslation) {
+			builder.addFallbackTranslation(data.fallbackTranslation);
+		}
+
+		builder.addQuestionLine();
+
+		if (data.termInSentenceForm.toLowerCase() !== data.term.toLowerCase()) {
+			builder.addSentenceAnswer(data.termInSentenceForm);
+		}
+
+		const cardContent = builder
+			.addTermExplanation(data.term, data.explanation)
+			.addAudioUs(data.audioFilePaths.us)
+			.addAudioUk(data.audioFilePaths.uk)
+			.build();
+
+		this.cards.push(cardContent);
+
+		return this;
+	}
+
+	public withCustomTags(tags: string[]): IFlashcardFileBuilder {
+		this.customTags = tags;
+		return this;
+	}
+
 	public reset(): IFlashcardFileBuilder {
 		this.cards = [];
+		this.customTags = null;
 		this.flashcardBuilder.reset();
 		return this;
 	}
 
 	public build(): string {
-		return this.addFrontmatter() + this.cards.join(SEPARATOR);
+		const tags = this.customTags ?? FRONTMATTER_TAGS;
+		return this.addFrontmatter(tags) + this.cards.join(SEPARATOR);
 	}
 
-	private addFrontmatter(): string {
+	private addFrontmatter(tags: string[]): string {
 		const createdAt = formatCreatedAt(new Date());
-		const tagsBlock = FRONTMATTER_TAGS.map((t) => `  - ${t}`).join("\n");
+		const tagsBlock = tags.map((t) => `  - ${t}`).join("\n");
 
 		return `---
 created at: "${createdAt}"

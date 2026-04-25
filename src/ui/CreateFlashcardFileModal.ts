@@ -1,5 +1,6 @@
 import { App } from "obsidian";
 import {
+	AudioDownloadService,
 	CambridgeAudioService,
 	FlashcardBuilder,
 	FlashcardController,
@@ -29,9 +30,15 @@ export class CreateFlashcardFileModal extends BaseFlashcardModal {
 	}
 
 	protected async handleSubmit(flashcards: InputFlashcardData[]): Promise<void> {
-		const controller = new FlashcardController(
-			new VaultStorageService(this.app.vault),
+		const storage = new VaultStorageService(this.app.vault);
+		const audioService = new AudioDownloadService(
+			storage,
 			new CambridgeAudioService(),
+			this.settings.audioFolderPath,
+		);
+		const controller = new FlashcardController(
+			storage,
+			audioService,
 			new FlashcardFileBuilder(new FlashcardBuilder()),
 			this.settings,
 		);

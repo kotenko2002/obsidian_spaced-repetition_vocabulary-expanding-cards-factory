@@ -13,3 +13,12 @@ export function termToAudioFileBase(term: string): string {
 export function termToFlashcardFileBase(term: string): string {
 	return normalizeTerm(term, " ");
 }
+
+export function termToImageFileBase(term: string, uuid: string): string {
+	const normalized = normalizeTerm(term, "_");
+	return `${normalized}_${uuid}`;
+}
+
+export function generateShortUuid(): string {
+	return crypto.randomUUID().slice(0, 8);
+}

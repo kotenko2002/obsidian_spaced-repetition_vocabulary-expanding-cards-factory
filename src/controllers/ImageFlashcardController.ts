@@ -3,10 +3,14 @@ import type { AudioDownloadService } from "../services/AudioDownloadService";
 import { VaultStorageService } from "../services/VaultStorageService";
 import { termToFlashcardFileBase } from "../helpers/termHelpers";
 import { CreateFlashcardFilesPluginSettings, DEFAULT_SETTINGS } from "../settings";
-import { InputFlashcardData } from "../models/InputFlashcardData";
-import type { FlashcardData } from "../models/FlashcardData";
+import type {
+	EnrichedImageFlashcardData,
+	ImageFlashcardData,
+} from "../models/ImageFlashcardData";
 
-export class FlashcardController {
+const IMAGE_FLASHCARD_TAGS = ["flashcards/english/vocabulary-v2"];
+
+export class ImageFlashcardController {
 	private readonly flashcardFolderPath: string;
 
 	constructor(
@@ -18,45 +22,34 @@ export class FlashcardController {
 		this.flashcardFolderPath = settings.flashcardFileFolderPath || DEFAULT_SETTINGS.flashcardFileFolderPath;
 	}
 
-	public async createFlashcard(data: InputFlashcardData) {
+	public async createFlashcard(data: EnrichedImageFlashcardData): Promise<void> {
 		const audioFilePaths = await this.audioService.downloadAudioFiles(
 			data.term,
 			data.skipFullTermLookup ?? false,
 			data.skipAudio ?? false,
 		);
 
-		const dataWithAudio: FlashcardData = { ...data, audioFilePaths };
-		const flashcardMarkdown = this.buildFlashcardMarkdown(dataWithAudio);
+		const dataWithAudio: ImageFlashcardData = { ...data, audioFilePaths };
+		const flashcardMarkdown = this.fileBuilder
+			.reset()
+			.addSentenceGapWithImageCard(dataWithAudio)
+			.withCustomTags(IMAGE_FLASHCARD_TAGS)
+			.build();
 
-		await this.createFlashcardFile(flashcardMarkdown, data.term);
+		await this.createFlashcardFile(flashcardMarkdown, data.term, data.uuid);
 	}
 
 	public async countdownDelay(nextWord: string, index?: number, total?: number): Promise<void> {
 		await this.audioService.countdownDelay(nextWord, index, total);
 	}
 
-	private buildFlashcardMarkdown(dataWithAudio: FlashcardData): string {
-		const builder = this.fileBuilder
-			.reset()
-			.addSentenceGapCards(dataWithAudio)
-			.addDirectTranslationCard(dataWithAudio);
-
-		const hasAudio = dataWithAudio.audioFilePaths.uk.length > 0
-			|| dataWithAudio.audioFilePaths.us.length > 0;
-
-		if (hasAudio) {
-			builder.addListeningCard(dataWithAudio);
-		}
-
-		return builder.build();
-	}
-
 	private async createFlashcardFile(
 		flashcardMarkdown: string,
 		term: string,
+		uuid: string,
 	): Promise<string> {
 		const flashcardFileBase = termToFlashcardFileBase(term);
-		const flashcardFileName = `(VOC) ${flashcardFileBase}.md`;
+		const flashcardFileName = `(VOC) ${flashcardFileBase} ${uuid}.md`;
 		const flashcardFilePath = `${this.flashcardFolderPath}/${flashcardFileName}`;
 
 		await this.storage.createFolderIfNotExists(this.flashcardFolderPath);

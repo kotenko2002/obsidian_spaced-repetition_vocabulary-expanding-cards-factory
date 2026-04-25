@@ -1,5 +1,6 @@
 import { App } from "obsidian";
 import {
+	AudioDownloadService,
 	CambridgeAudioService,
 	FlashcardBuilder,
 	FlashcardController,
@@ -36,12 +37,18 @@ export class BackgroundFlashcardModal extends BaseFlashcardModal {
 	}
 
 	private async processInBackground(flashcards: InputFlashcardData[]) {
-		const controller = new FlashcardController(
-			new VaultStorageService(this.app.vault),
+		const storage = new VaultStorageService(this.app.vault);
+		const audioService = new AudioDownloadService(
+			storage,
 			new CambridgeAudioService(),
+			this.settings.audioFolderPath,
+			BACKGROUND_DELAY_MULTIPLIER,
+		);
+		const controller = new FlashcardController(
+			storage,
+			audioService,
 			new FlashcardFileBuilder(new FlashcardBuilder()),
 			this.settings,
-			BACKGROUND_DELAY_MULTIPLIER,
 		);
 
 		const failedItems: InputFlashcardData[] = [];

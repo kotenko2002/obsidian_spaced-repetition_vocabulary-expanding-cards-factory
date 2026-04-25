@@ -2,6 +2,7 @@ import { Menu, Plugin } from "obsidian";
 import { DEFAULT_SETTINGS, CreateFlashcardFilesPluginSettings, CreateFlashcardFilesSettingTab } from "./settings";
 import { CreateFlashcardFileModal } from "./ui/CreateFlashcardFileModal";
 import { BackgroundFlashcardModal } from "./ui/BackgroundFlashcardModal";
+import { ImageFlashcardModal } from "./ui/ImageFlashcardModal";
 
 export default class CreateFlashcardFilesPlugin extends Plugin {
 	settings: CreateFlashcardFilesPluginSettings;
@@ -21,6 +22,11 @@ export default class CreateFlashcardFilesPlugin extends Plugin {
 				.setTitle("Background processing")
 				.setIcon("clock")
 				.onClick(() => new BackgroundFlashcardModal(this.app, this.settings).open())
+			);
+			menu.addItem(item => item
+				.setTitle("Create image-based flashcards")
+				.setIcon("image")
+				.onClick(() => new ImageFlashcardModal(this.app, this.settings).open())
 			);
 			menu.showAtMouseEvent(evt);
 		});
