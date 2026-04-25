@@ -47,6 +47,21 @@ export class VaultStorageService {
 		}
 	}
 
+	public async binaryExists(binaryPath: string): Promise<boolean> {
+		return await this.vault.adapter.exists(binaryPath);
+	}
+
+	public async readBinary(binaryPath: string): Promise<ArrayBuffer> {
+		try {
+			return await this.vault.adapter.readBinary(binaryPath);
+		} catch (error) {
+			const logMessage = `[VaultStorage] Failed to read binary at: ${binaryPath}`;
+			new ErrorNotice(logMessage);
+			console.error(logMessage, error);
+			throw new Error(`Could not read file: ${binaryPath}`);
+		}
+	}
+
 	public async createFileIfNotExists(filePath: string, contents: string): Promise<void> {
 		const fileAlreadyExists = await this.vault.adapter.exists(filePath);
 		if (fileAlreadyExists) {

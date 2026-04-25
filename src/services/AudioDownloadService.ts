@@ -24,6 +24,17 @@ export class AudioDownloadService {
 
 		await this.storage.createFolderIfNotExists(this.audioFolderPath);
 
+		const audioFileBase = termToAudioFileBase(term);
+		const ukPath = `${this.audioFolderPath}/${audioFileBase}_uk.mp3`;
+		const usPath = `${this.audioFolderPath}/${audioFileBase}_us.mp3`;
+
+		const ukTermCached = await this.storage.binaryExists(ukPath);
+		const usTermCached = await this.storage.binaryExists(usPath);
+		if (ukTermCached && usTermCached) {
+			new InfoNotice(`Using cached audio for term "${term}"`);
+			return { uk: [ukPath], us: [usPath] };
+		}
+
 		const ukMp3Buffers: ArrayBuffer[] = [];
 		const usMp3Buffers: ArrayBuffer[] = [];
 
@@ -33,7 +44,6 @@ export class AudioDownloadService {
 			if (us) usMp3Buffers.push(us);
 		}
 
-		const audioFileBase = termToAudioFileBase(term);
 		const ukPaths: string[] = [];
 		const usPaths: string[] = [];
 
@@ -41,7 +51,6 @@ export class AudioDownloadService {
 			const finalUk = ukMp3Buffers.length > 1
 				? await concatenateMp3(ukMp3Buffers)
 				: ukMp3Buffers[0]!;
-			const ukPath = `${this.audioFolderPath}/${audioFileBase}_uk.mp3`;
 			await this.storage.createBinaryIfNotExists(ukPath, finalUk);
 			ukPaths.push(ukPath);
 		}
@@ -50,7 +59,6 @@ export class AudioDownloadService {
 			const finalUs = usMp3Buffers.length > 1
 				? await concatenateMp3(usMp3Buffers)
 				: usMp3Buffers[0]!;
-			const usPath = `${this.audioFolderPath}/${audioFileBase}_us.mp3`;
 			await this.storage.createBinaryIfNotExists(usPath, finalUs);
 			usPaths.push(usPath);
 		}
@@ -100,17 +108,39 @@ export class AudioDownloadService {
 
 		new InfoNotice(`Downloading audio for ${words.length} words with random pauses (4-12s)...`);
 
+		let cambridgeFetchAttempted = fullLookupAttempted;
 		const results: { uk: ArrayBuffer | null; us: ArrayBuffer | null }[] = [];
+
 		for (let i = 0; i < words.length; i++) {
-			const needsDelay = i > 0 || fullLookupAttempted;
-			if (needsDelay) {
-				await this.countdownDelay(words[i]!);
+			const word = words[i]!;
+			const wordBase = termToAudioFileBase(word);
+			const wordUkPath = `${this.audioFolderPath}/${wordBase}_uk.mp3`;
+			const wordUsPath = `${this.audioFolderPath}/${wordBase}_us.mp3`;
+
+			const ukCached = await this.storage.binaryExists(wordUkPath);
+			const usCached = await this.storage.binaryExists(wordUsPath);
+
+			if (ukCached && usCached) {
+				new InfoNotice(`Using cached audio: "${word}" (${i + 1}/${words.length})`);
+				const uk = await this.storage.readBinary(wordUkPath);
+				const us = await this.storage.readBinary(wordUsPath);
+				results.push({ uk, us });
+				continue;
 			}
 
-			new InfoNotice(`Downloading audio: "${words[i]}" (${i + 1}/${words.length})`);
-			const { ukData, usData } = await this.cambridgeAudioService.fetch(words[i]!);
+			if (cambridgeFetchAttempted) {
+				await this.countdownDelay(word);
+			}
+			cambridgeFetchAttempted = true;
+
+			new InfoNotice(`Downloading audio: "${word}" (${i + 1}/${words.length})`);
+			const { ukData, usData } = await this.cambridgeAudioService.fetch(word);
 			const uk = ukData ? await convertOggToMp3(ukData) : null;
 			const us = usData ? await convertOggToMp3(usData) : null;
+
+			if (uk) await this.storage.createBinaryIfNotExists(wordUkPath, uk);
+			if (us) await this.storage.createBinaryIfNotExists(wordUsPath, us);
+
 			results.push({ uk, us });
 		}
 		return results;
