@@ -8,6 +8,7 @@ export interface IFlashcardBuilder {
 	addAudioUk(audioUk: string[]): IFlashcardBuilder;
 	addImage(imagePath: string): IFlashcardBuilder;
 	addFallbackTranslation(translation: string): IFlashcardBuilder;
+	addSource(source: string): IFlashcardBuilder;
 	reset(): IFlashcardBuilder;
 	build(): string;
 }

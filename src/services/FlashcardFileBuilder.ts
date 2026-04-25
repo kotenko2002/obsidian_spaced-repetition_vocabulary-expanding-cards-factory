@@ -44,7 +44,7 @@ export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 		if (sentenceData.termInSentenceForm.toLowerCase() !== data.term.toLowerCase()) {
 			builder.addSentenceAnswer(sentenceData.termInSentenceForm);
 		}
-		
+
 		const cardContent = builder
 			.addTermExplanation(data.term, data.explanation)
 			.addAudioUs(data.audioFilePaths.us)
@@ -110,13 +110,16 @@ export class FlashcardFileBuilder implements IFlashcardFileBuilder {
 			builder.addSentenceAnswer(data.termInSentenceForm);
 		}
 
-		const cardContent = builder
+		builder
 			.addTermExplanation(data.term, data.explanation)
 			.addAudioUs(data.audioFilePaths.us)
-			.addAudioUk(data.audioFilePaths.uk)
-			.build();
+			.addAudioUk(data.audioFilePaths.uk);
 
-		this.cards.push(cardContent);
+		if (data.source) {
+			builder.addSource(data.source);
+		}
+
+		this.cards.push(builder.build());
 
 		return this;
 	}

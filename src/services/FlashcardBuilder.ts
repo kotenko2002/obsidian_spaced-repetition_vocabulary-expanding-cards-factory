@@ -48,6 +48,11 @@ export class FlashcardBuilder implements IFlashcardBuilder {
 		return this;
 	}
 
+	public addSource(source: string): IFlashcardBuilder {
+		this.content += `🔗 ${source}${LINE_BREAK}`;
+		return this;
+	}
+
 	public reset(): IFlashcardBuilder {
 		this.content = "";
 		return this;

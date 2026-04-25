@@ -6,6 +6,7 @@ export const imageInputFlashcardDataSchema = z.object({
 	sentence: z.string(),
 	termInSentenceForm: z.string(),
 	fallbackTranslation: z.string().optional(),
+	source: z.string().optional(),
 	skipFullTermLookup: z.boolean().optional(),
 	skipAudio: z.boolean().optional(),
 });
